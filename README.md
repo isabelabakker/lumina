@@ -5,7 +5,7 @@ Lumina é uma aplicação web/mobile construída em HTML + Tailwind CDN voltada 
 ## Funcionalidades
 - Manter uma frase central de identidade que sirva como lembrete rápido;
 - Listar três qualidades centrais e três valores pessoais;
-- Manter marcadores que funcionam como âncoras rápidas (ex.: música, caminhada);
+- Manter marcadores que funcionam como âncoras rápidas (ex.: música, natureza, etc);
 - Guardar elementos fixos da personalidade e atualizar a lista quando quiser;
 - Diário de continuidade para lembrar verdades estáveis em dias difíceis;
 - Âncora do amor: frases de afirmação e carinho ditas por ou para pessoas amadas (incluindo de você para você mesmo).
@@ -16,6 +16,7 @@ Lumina é uma aplicação web/mobile construída em HTML + Tailwind CDN voltada 
 3. Use o bloco “coisas que fazem parte de você” para adicionar itens fixos;
 4. Registre entradas no diário sempre que sentir desconexão;
 5. Adicione frases à "Âncora do amor" para ler diariamente.
+
 
 
 
