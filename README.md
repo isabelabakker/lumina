@@ -1,4 +1,4 @@
-# Lumina — Âncora de personalidade
+# Lumina ☀️ — Âncora de personalidade
 
 Aplicativo web simples construído em HTML + Tailwind CDN para ajudar pessoas com transtorno de personalidade borderline (TPB) a se ancorarem em sua identidade quando surgem oscilações emocionais. Pessoas com TPB costumam relatar sensação de instabilidade na identidade, principalmente diante de gatilhos e contextos de forte carga emocional. O Lumina oferece um painel único, discreto e totalmente local para resgatar qualidades, valores e registros que reforçam a continuidade pessoal, funcionando como uma ferramenta de apoio diário.
 
@@ -14,6 +14,7 @@ Aplicativo web simples construído em HTML + Tailwind CDN para ajudar pessoas co
 2. Preencha as caixas na própria âncora (as listas se atualizam automaticamente).
 3. Use o bloco “coisas que fazem parte de você” para adicionar itens fixos.
 4. Registre entradas no diário sempre que sentir desconexão.
+
 
 
 
