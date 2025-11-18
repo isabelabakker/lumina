@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lumina</title>
+    <!-- Carrega o Tailwind CSS para estilos rápidos e responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Define a paleta de cores acolhedoras e estáveis */
+        :root {
+            --cor-primaria: #07090f;
+            --cor-secundaria: #111629;
+            --cor-texto: #f1f4ff;
+            --cor-ancora: #ff8c42;
+            --cor-suave: #1f2a3f;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cor-primaria);
+            color: var(--cor-texto);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 16px; /* Ajuste para mobile */
+            text-transform: lowercase;
+        }
+
+        .card {
+            background-color: var(--cor-secundaria);
+            padding: 20px; /* Ajuste para mobile */
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+        }
+
+        /* Estilo da seção principal (a âncora) */
+        .main-anchor {
+            background-color: #131b33;
+            border: 1px solid #1f2742;
+        }
+
+        /* Estilo dos marcadores de identidade */
+        .marker-tag {
+            background-color: var(--cor-ancora);
+            color: #0b0d17;
+            font-weight: 500;
+            padding: 6px 14px; /* Mais padding para touch mobile */
+            border-radius: 9999px;
+            cursor: default; /* Não é interativo */
+        }
+        
+        /* Custom style for the journal button to use the accent color */
+        .journal-button {
+            background-color: var(--cor-ancora);
+            transition: background-color 0.2s;
+        }
+        .journal-button:hover {
+            background-color: #ffb166;
+        }
+        
+        /* Fixes para formulário mobile */
+        input[type="text"], textarea {
+            padding: 10px;
+            background-color: #0d1221;
+            border: 1px solid #232a40;
+            color: var(--cor-texto);
+            text-transform: none;
+        }
+
+        /* Spinner customizado para a estabilização */
+        .spinner {
+            width: 3rem; 
+            height: 3rem; 
+            border: 6px solid var(--cor-suave); 
+            border-top: 6px solid var(--cor-ancora); 
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .bg-white\/80 {
+            background-color: rgba(13, 19, 36, 0.75) !important;
+        }
+
+        .bg-gray-50 {
+            background-color: rgba(10, 15, 30, 0.7) !important;
+        }
+
+        .border-gray-200 {
+            border-color: #2b324a !important;
+        }
+
+        .border-gray-300 {
+            border-color: #353c55 !important;
+        }
+
+        .text-gray-800,
+        .text-gray-700 {
+            color: var(--cor-texto) !important;
+        }
+
+        .text-gray-600 {
+            color: #c5cbe6 !important;
+        }
+
+        .text-gray-500 {
+            color: #9aa3c7 !important;
+        }
+
+        .text-gray-400 {
+            color: #7c84ac !important;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #7c84ac;
+            text-transform: none;
+        }
+    </style>
+</head>
+<body class="selection:bg-orange-500/40">
+
+    <div class="max-w-4xl w-full space-y-6 sm:space-y-8">
+        <!-- 1. SEÇÃO PRINCIPAL - ÂNCORA DE IDENTIDADE -->
+        <section id="main-anchor" class="card main-anchor p-6 sm:p-10 text-center">
+            <div class="mb-6">
+                <h1 class="text-4xl sm:text-5xl font-bold text-gray-800 flex items-center justify-center gap-3">
+                    lumina
+                    <span class="text-amber-300 text-4xl sm:text-5xl" aria-hidden="true">☀️</span>
+                </h1>
+                <p class="text-sm sm:text-base text-gray-500 mt-2 tracking-[0.3em]">
+                    âncora de personalidade
+                </p>
+            </div>
+
+            <div class="text-left mb-6">
+                <div class="p-3 rounded-xl bg-white/80">
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Sua Frase de Identidade:</label>
+                    <textarea id="identity-sentence-input" rows="2" class="p-2 border rounded-lg w-full resize-none" placeholder="Ex: Sou estabilidade mesmo quando balanço."></textarea>
+                </div>
+            </div>
+
+            <!-- Qualidades & Valores (Layout adaptável) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                <div class="p-3 rounded-xl bg-white/80">
+                    <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">Três Qualidades Centrais</h2>
+                    <ul id="qualities-list" class="list-disc list-inside pl-2 space-y-1 text-sm mb-3"></ul>
+                    <input type="text" id="qualities-input" class="p-2 border rounded-lg w-full text-sm" placeholder="Gentil, Forte, Criativa">
+                    <p class="text-[11px] text-gray-500 mt-1">Separe por vírgula (máx. 3).</p>
+                </div>
+                <div class="p-3 rounded-xl bg-white/80">
+                    <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">Três Valores Pessoais</h2>
+                    <ul id="values-list" class="list-disc list-inside pl-2 space-y-1 text-sm mb-3"></ul>
+                    <input type="text" id="values-input" class="p-2 border rounded-lg w-full text-sm" placeholder="Honestidade, Liberdade, Crescimento">
+                    <p class="text-[11px] text-gray-500 mt-1">Separe por vírgula (máx. 3).</p>
+                </div>
+            </div>
+
+            <!-- Marcadores de Identidade -->
+            <div class="mt-6">
+                <h3 class="text-md font-semibold mb-3 text-gray-700">Marcadores de Identidade (Pontos Fixos)</h3>
+                <div id="markers-container" class="flex flex-wrap justify-center gap-2">
+                    <!-- Tags serão injetadas aqui -->
+                </div>
+                <div class="mt-3">
+                    <label class="block text-xs font-medium text-gray-500 mb-1">Adicione/edite marcadores (separe por vírgula):</label>
+                    <input type="text" id="markers-input" class="p-2 border rounded-lg w-full text-sm" placeholder="Música, Caminhadas, Calmaria">
+                </div>
+            </div>
+            
+        </section>
+
+        <!-- 2. SEÇÃO: COISAS QUE FAZEM PARTE DE VOCÊ -->
+        <section id="fixed-elements-section" class="card">
+            <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Coisas que Fazem Parte de Você</h2>
+            <div id="fixed-elements-container" class="space-y-3">
+                <!-- Cards de elementos fixos serão injetados aqui -->
+            </div>
+            <div class="mt-4 flex gap-2">
+                <input type="text" id="new-fixed-element-input" placeholder="Adicionar um elemento constante..." class="p-2 border rounded-lg w-full focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora">
+                <button onclick="addFixedElement()" class="px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition flex-shrink-0">
+                    adicionar
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. SEÇÃO: DIÁRIO DE CONTINUIDADE -->
+        <section id="journal-section" class="card">
+            <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Diário de Continuidade</h2>
+            
+            <div class="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+                <label for="journal-entry" class="block text-sm font-medium mb-2 italic text-gray-600">
+                    Hoje me senti desconectada. O que continua sendo verdade sobre mim?
+                </label>
+                <textarea id="journal-entry" rows="3" class="p-2 border rounded-lg w-full resize-none focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora"></textarea>
+                <button onclick="addJournalEntry()" class="mt-3 px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition">
+                    registrar constância
+                </button>
+            </div>
+            
+            <div id="journal-entries-container" class="space-y-4 max-h-96 overflow-y-auto p-2">
+                <!-- Entradas do diário serão injetadas aqui -->
+            </div>
+        </section>
+
+        <footer class="text-center text-sm py-6 text-gray-500">
+            Lumina — O seu guia sutil de constância.
+            <br>
+            Dados armazenados apenas localmente neste navegador.
+        </footer>
+    </div>
+
+    <script>
+        // Variável global para armazenar os dados do usuário.
+        let userData = {
+            identity_sentence: "",
+            qualities: ["Gentil", "Forte", "Criativa"],
+            values: ["Honestidade", "Liberdade", "Crescimento"],
+            markers: ["Música", "Natureza", "Sensibilidade", "Coragem"],
+            fixed_elements: [
+                "Amor por coisas antigas", 
+                "Apreço pela chuva", 
+                "Minha risada única", 
+                "O desejo de sempre aprender",
+            ],
+            journal: []
+        };
+
+        /**
+         * Função utilitária para limpar e separar entradas por vírgula.
+         */
+        const cleanAndSplit = (value, limit = Infinity) => {
+            return value
+                .split(',')
+                .map(s => s.trim())
+                .filter(s => s.length > 0)
+                .slice(0, limit);
+        };
+
+        /**
+         * Carrega os dados do localStorage e os mescla com os dados padrão.
+         */
+        function loadData() {
+            try {
+                const storedData = localStorage.getItem('bakker_anchor_data'); 
+                if (storedData) {
+                    const parsedData = JSON.parse(storedData);
+                    userData = { ...userData, ...parsedData };
+                }
+            } catch (error) {
+                console.error("Erro ao carregar dados do localStorage:", error);
+            }
+            renderAll();
+            populateInlineInputs();
+        }
+
+        /**
+         * Salva os dados atuais do usuário no localStorage.
+         */
+        function saveData() {
+            try {
+                localStorage.setItem('bakker_anchor_data', JSON.stringify(userData));
+                console.log("Dados salvos com sucesso.");
+            } catch (error) {
+                console.error("Erro ao salvar dados no localStorage:", error);
+            }
+        }
+
+        /**
+         * Renderiza todos os componentes da interface.
+         */
+        function renderAll() {
+            renderAnchor();
+            renderFixedElements();
+            renderJournal();
+        }
+
+        // --- RENDERIZAÇÃO DA ÂNCORA PRINCIPAL ---
+
+        /**
+         * Renderiza a frase (na caixa), qualidades, valores e marcadores.
+         */
+        function renderAnchor() {
+            renderList('qualities-list', userData.qualities);
+            renderList('values-list', userData.values);
+            renderMarkers();
+            populateInlineInputs();
+        }
+
+        /**
+         * Renderiza listas simples com segurança.
+         */
+        function renderList(id, items) {
+            const ul = document.getElementById(id);
+            const safeItems = Array.isArray(items) ? items : [];
+            ul.innerHTML = safeItems.map(item => `<li class="text-gray-700">${item.trim()}</li>`).join('');
+        }
+
+        /**
+         * Renderiza os marcadores de identidade.
+         */
+        function renderMarkers() {
+            const markersContainer = document.getElementById('markers-container');
+            const safeMarkers = Array.isArray(userData.markers) ? userData.markers : [];
+            markersContainer.innerHTML = safeMarkers.map(marker => `
+                <span class="marker-tag text-sm">${marker.trim()}</span>
+            `).join('');
+        }
+
+        /**
+         * Preenche os campos inline com os dados atuais.
+         */
+        function populateInlineInputs() {
+            const identityInput = document.getElementById('identity-sentence-input');
+            const qualitiesInput = document.getElementById('qualities-input');
+            const valuesInput = document.getElementById('values-input');
+            const markersInput = document.getElementById('markers-input');
+
+            if (identityInput) identityInput.value = userData.identity_sentence || '';
+            if (qualitiesInput) qualitiesInput.value = Array.isArray(userData.qualities) ? userData.qualities.join(', ') : '';
+            if (valuesInput) valuesInput.value = Array.isArray(userData.values) ? userData.values.join(', ') : '';
+            if (markersInput) markersInput.value = Array.isArray(userData.markers) ? userData.markers.join(', ') : '';
+        }
+
+        /**
+         * Configura os listeners dos campos inline para salvar automaticamente.
+         */
+        function setupInlineInputs() {
+            const identityInput = document.getElementById('identity-sentence-input');
+            const qualitiesInput = document.getElementById('qualities-input');
+            const valuesInput = document.getElementById('values-input');
+            const markersInput = document.getElementById('markers-input');
+
+            if (identityInput) {
+                identityInput.addEventListener('input', (event) => {
+                    userData.identity_sentence = event.target.value;
+                    renderAnchor();
+                    saveData();
+                });
+            }
+
+            if (qualitiesInput) {
+                qualitiesInput.addEventListener('input', (event) => {
+                    userData.qualities = cleanAndSplit(event.target.value, 3);
+                    renderAnchor();
+                    saveData();
+                });
+            }
+
+            if (valuesInput) {
+                valuesInput.addEventListener('input', (event) => {
+                    userData.values = cleanAndSplit(event.target.value, 3);
+                    renderAnchor();
+                    saveData();
+                });
+            }
+
+            if (markersInput) {
+                markersInput.addEventListener('input', (event) => {
+                    userData.markers = cleanAndSplit(event.target.value);
+                    renderMarkers();
+                    saveData();
+                });
+            }
+        }
+
+        // --- COISAS QUE SEMPRE FORAM SUAS ---
+
+        /**
+         * Renderiza a lista de elementos fixos.
+         */
+        function renderFixedElements() {
+            const container = document.getElementById('fixed-elements-container');
+            const safeElements = Array.isArray(userData.fixed_elements) ? userData.fixed_elements : [];
+            container.innerHTML = safeElements.map((element, index) => `
+                <div class="card p-3 flex justify-between items-center bg-cor-secundaria/50 text-sm">
+                    <p class="font-medium text-gray-800">${element}</p>
+                    <button onclick="removeFixedElement(${index})" class="text-red-500 hover:text-red-700 transition ml-4 flex-shrink-0" title="Remover">
+                        &times;
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        /**
+         * Adiciona um novo elemento fixo.
+         */
+        function addFixedElement() {
+            const input = document.getElementById('new-fixed-element-input');
+            const newElement = input.value.trim();
+            if (newElement) {
+                // Garante que é um array antes de adicionar
+                if (!Array.isArray(userData.fixed_elements)) {
+                    userData.fixed_elements = [];
+                }
+                userData.fixed_elements.push(newElement);
+                input.value = ''; // Limpa o input
+                saveData();
+                renderFixedElements();
+            }
+        }
+
+        /**
+         * Remove um elemento fixo pelo índice.
+         */
+        function removeFixedElement(index) {
+            if (Array.isArray(userData.fixed_elements)) {
+                userData.fixed_elements.splice(index, 1);
+                saveData();
+                renderFixedElements();
+            }
+        }
+
+        // --- DIÁRIO DE CONTINUIDADE ---
+
+        /**
+         * Renderiza as entradas do diário.
+         */
+        function renderJournal() {
+            const container = document.getElementById('journal-entries-container');
+            const safeJournal = Array.isArray(userData.journal) ? userData.journal : [];
+
+            if (safeJournal.length === 0) {
+                container.innerHTML = '<p class="text-center italic text-gray-500">Nenhum registro de constância ainda. Registre sua primeira verdade!</p>';
+                return;
+            }
+
+            // Inverte a ordem para mostrar o mais recente primeiro
+            const sortedJournal = [...safeJournal].reverse();
+
+            container.innerHTML = sortedJournal.map((entry) => {
+                // Garante que o objeto entry tem as propriedades necessárias
+                const dateString = entry.date || new Date().toISOString().split('T')[0];
+                const date = new Date(dateString);
+                const formattedDate = date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+                const entryText = entry.entry || "Entrada de diário vazia.";
+
+                return `
+                    <div class="card p-4 border-l-4 border-cor-ancora text-sm">
+                        <p class="text-xs text-gray-500 mb-1">${formattedDate}</p>
+                        <p class="text-base text-gray-700">${entryText}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /**
+         * Adiciona uma nova entrada ao diário.
+         */
+        function addJournalEntry() {
+            const textarea = document.getElementById('journal-entry');
+            const newEntry = textarea.value.trim();
+            if (newEntry) {
+                // Garante que é um array antes de adicionar
+                if (!Array.isArray(userData.journal)) {
+                    userData.journal = [];
+                }
+                const today = new Date().toISOString().split('T')[0]; // Data YYYY-MM-DD
+                userData.journal.push({
+                    date: today,
+                    entry: newEntry
+                });
+                textarea.value = ''; // Limpa o textarea
+                saveData();
+                renderJournal();
+            }
+        }
+
+        // === INICIALIZAÇÃO CORRIGIDA ===
+        // Utiliza DOMContentLoaded para garantir que o DOM está pronto antes de manipular os elementos.
+        function initializeApp() {
+            try {
+                setupInlineInputs();
+                loadData();
+            } catch (error) {
+                console.error('Falha ao iniciar o Lumina:', error);
+                alert('Algo falhou ao carregar o Lumina. Veja o console para detalhes.');
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+
+    </script>
+</body>
+</html>
