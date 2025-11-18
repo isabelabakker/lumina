@@ -164,7 +164,7 @@
             <div class="text-left mb-6">
                 <div class="p-3 rounded-xl bg-white/80">
                     <label class="block text-sm font-medium text-gray-600 mb-1">Sua Frase de Identidade:</label>
-                    <textarea id="identity-sentence-input" rows="2" class="p-2 border rounded-lg w-full resize-none" placeholder="Ex: Sou estabilidade mesmo quando balanço."></textarea>
+                    <textarea id="identity-sentence-input" rows="2" class="p-2 border rounded-lg w-full resize-none" placeholder="adicione uma frase central. ex: eu não sou meus pensamentos nem minhas emoções."></textarea>
                 </div>
             </div>
 
@@ -173,13 +173,13 @@
                 <div class="p-3 rounded-xl bg-white/80">
                     <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">Três Qualidades Centrais</h2>
                     <ul id="qualities-list" class="list-disc list-inside pl-2 space-y-1 text-sm mb-3"></ul>
-                    <input type="text" id="qualities-input" class="p-2 border rounded-lg w-full text-sm" placeholder="Gentil, Forte, Criativa">
+                    <input type="text" id="qualities-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: gentil, forte, criativa">
                     <p class="text-[11px] text-gray-500 mt-1">Separe por vírgula (máx. 3).</p>
                 </div>
                 <div class="p-3 rounded-xl bg-white/80">
                     <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">Três Valores Pessoais</h2>
                     <ul id="values-list" class="list-disc list-inside pl-2 space-y-1 text-sm mb-3"></ul>
-                    <input type="text" id="values-input" class="p-2 border rounded-lg w-full text-sm" placeholder="Honestidade, Liberdade, Crescimento">
+                    <input type="text" id="values-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: honestidade, liberdade, crescimento">
                     <p class="text-[11px] text-gray-500 mt-1">Separe por vírgula (máx. 3).</p>
                 </div>
             </div>
@@ -192,7 +192,7 @@
                 </div>
                 <div class="mt-3">
                     <label class="block text-xs font-medium text-gray-500 mb-1">Adicione/edite marcadores (separe por vírgula):</label>
-                    <input type="text" id="markers-input" class="p-2 border rounded-lg w-full text-sm" placeholder="Música, Caminhadas, Calmaria">
+                    <input type="text" id="markers-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: música, arte, sensibilidade, intuição">
                 </div>
             </div>
             
@@ -216,7 +216,7 @@
                 <!-- Cards de elementos fixos serão injetados aqui -->
             </div>
             <div class="mt-4 flex gap-2">
-                <input type="text" id="new-fixed-element-input" placeholder="Adicionar um elemento constante..." class="p-2 border rounded-lg w-full focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora">
+                <input type="text" id="new-fixed-element-input" placeholder="adicionar um elemento constante. ex: me sinto feliz fazendo coisas para quem amo." class="p-2 border rounded-lg w-full focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora">
                 <button onclick="addFixedElement()" class="px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition flex-shrink-0">
                     adicionar
                 </button>
@@ -230,7 +230,7 @@
                 <!-- Cards de gostos serão injetados aqui -->
             </div>
             <div class="mt-4 flex gap-2">
-                <input type="text" id="new-like-input" placeholder="Adicionar um novo gosto ou interesse..." class="p-2 border rounded-lg w-full focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora">
+                <input type="text" id="new-like-input" placeholder="adicionar um novo gosto ou interesse. ex: cheiro de chuva." class="p-2 border rounded-lg w-full focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora">
                 <button onclick="addLikeElement()" class="px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition flex-shrink-0">
                     adicionar
                 </button>
@@ -265,11 +265,11 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="col-span-1 sm:col-span-2">
                         <label for="love-quote-input" class="block text-sm font-medium mb-1 italic text-gray-600">Frase:</label>
-                        <textarea id="love-quote-input" rows="2" class="p-2 border rounded-lg w-full resize-none focus:ring-1 focus:ring-pink-400 focus:border-pink-400" placeholder="Ex: 'Seu sorriso ilumina tudo.'"></textarea>
+                        <textarea id="love-quote-input" rows="2" class="p-2 border rounded-lg w-full resize-none focus:ring-1 focus:ring-pink-400 focus:border-pink-400" placeholder="ex: 'sou grata(o) por ter você em minha vida.'"></textarea>
                     </div>
                     <div class="col-span-1">
                         <label for="love-source-input" class="block text-sm font-medium mb-1 italic text-gray-600">Fonte (Quem disse?):</label>
-                        <input type="text" id="love-source-input" class="p-2 border rounded-lg w-full" placeholder="Ex: Mãe, Amiga, Eu (para ele/a)">
+                        <input type="text" id="love-source-input" class="p-2 border rounded-lg w-full" placeholder="ex: mãe, amiga, eu">
                     </div>
                 </div>
                 <button onclick="addLoveQuote()" class="mt-3 px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition bg-pink-500 hover:bg-pink-600">
