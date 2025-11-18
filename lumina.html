@@ -72,7 +72,7 @@
         }
         
         /* Fixes para formulário mobile */
-        input[type="text"], textarea {
+        input[type="text"], textarea, input[type="email"], input[type="password"] {
             padding: 10px;
             background-color: #0d1221;
             border: 1px solid #232a40;
@@ -138,739 +138,658 @@
         .love-quote {
             border-left: 4px solid #f687b3; /* Um rosa suave para amor */
         }
+
+        /* Utilitário para controle de visibilidade do login */
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="selection:bg-orange-500/40">
 
     <div class="max-w-4xl w-full space-y-6 sm:space-y-8">
-        <!-- 1. SEÇÃO PRINCIPAL - ÂNCORA DE IDENTIDADE -->
-        <section id="main-anchor" class="card main-anchor p-6 sm:p-10 text-center">
-            <div class="mb-6">
-                <h1 class="text-4xl sm:text-5xl font-bold text-gray-800 flex items-center justify-center gap-3">
+
+        <!-- === 1. TELA DE LOGIN E CADASTRO === -->
+        <section id="auth-section" class="card p-8 sm:p-12 text-center max-w-md mx-auto mt-10">
+            <div class="mb-8">
+                <h1 class="text-4xl sm:text-5xl font-bold text-gray-800 flex items-center justify-center gap-3 mb-2">
                     lumina
                     <span class="text-amber-300 text-4xl sm:text-5xl" aria-hidden="true">☀️</span>
                 </h1>
-                <p class="text-sm sm:text-base text-gray-500 mt-2 tracking-[0.3em]">
-                    âncora de personalidade
-                </p>
-                <!-- Indicador de status de carregamento -->
-                <div id="loading-status" class="mt-3 text-sm text-amber-400 hidden items-center justify-center gap-2">
-                    <div class="spinner w-4 h-4 border-2"></div>
-                    carregando dados...
-                </div>
-                <p id="user-id-display" class="mt-2 text-xs text-gray-400 break-all">ID do Usuário: Carregando...</p>
+                <p class="text-sm text-gray-500 tracking-[0.3em]">acesso pessoal</p>
             </div>
 
-            <div class="text-left mb-6">
-                <div class="p-3 rounded-xl bg-white/80">
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Sua Frase de Identidade:</label>
-                    <textarea id="identity-sentence-input" rows="2" class="p-2 border rounded-lg w-full resize-none" placeholder="adicione uma frase central. ex: eu não sou meus pensamentos nem minhas emoções."></textarea>
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1 ml-1 uppercase tracking-wider">E-mail</label>
+                    <input type="email" id="auth-email" class="w-full p-3 rounded-lg border focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition" placeholder="seu@email.com">
                 </div>
-            </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1 ml-1 uppercase tracking-wider">Senha</label>
+                    <input type="password" id="auth-password" class="w-full p-3 rounded-lg border focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition" placeholder="******">
+                </div>
+                
+                <div id="auth-error" class="text-red-400 text-sm text-center hidden bg-red-900/20 p-2 rounded border border-red-800/50"></div>
 
-            <!-- Qualidades & Valores (Layout adaptável) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                <div class="p-3 rounded-xl bg-white/80">
-                    <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">Três Qualidades Centrais</h2>
-                    <ul id="qualities-list" class="list-disc list-inside pl-2 space-y-1 text-sm mb-3"></ul>
-                    <input type="text" id="qualities-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: gentil, forte, criativa">
-                    <p class="text-[11px] text-gray-500 mt-1">Separe por vírgula (máx. 3).</p>
+                <div class="pt-4 flex flex-col gap-3">
+                    <button onclick="handleLocalLogin()" id="btn-login" class="w-full py-3 journal-button text-white font-bold rounded-xl hover:opacity-90 transition shadow-lg">
+                        Entrar
+                    </button>
+                    <button onclick="handleLocalRegister()" id="btn-register" class="w-full py-3 bg-gray-700 text-gray-300 font-medium rounded-xl hover:bg-gray-600 transition">
+                        Criar nova conta
+                    </button>
                 </div>
-                <div class="p-3 rounded-xl bg-white/80">
-                    <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">Três Valores Pessoais</h2>
-                    <ul id="values-list" class="list-disc list-inside pl-2 space-y-1 text-sm mb-3"></ul>
-                    <input type="text" id="values-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: honestidade, liberdade, crescimento">
-                    <p class="text-[11px] text-gray-500 mt-1">Separe por vírgula (máx. 3).</p>
-                </div>
-            </div>
-
-            <!-- Marcadores de Identidade -->
-            <div class="mt-6">
-                <h3 class="text-md font-semibold mb-3 text-gray-700">Marcadores de Identidade (Pontos Fixos)</h3>
-                <div id="markers-container" class="flex flex-wrap justify-center gap-2">
-                    <!-- Tags serão injetadas aqui -->
-                </div>
-                <div class="mt-3">
-                    <label class="block text-xs font-medium text-gray-500 mb-1">Adicione/edite marcadores (separe por vírgula):</label>
-                    <input type="text" id="markers-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: música, arte, sensibilidade, intuição">
-                </div>
-            </div>
-            
-            <!-- NOVO: BOTÃO DE SALVAR MANUAL + INDICADOR DE STATUS -->
-            <div class="mt-6 flex flex-col sm:flex-row items-center gap-3">
-                <button id="manual-save-button" onclick="saveDataToFirestore()" class="w-full sm:w-auto flex-grow px-4 py-3 journal-button text-white font-bold rounded-xl hover:opacity-90 transition text-base">
-                    Salvar Alterações da Âncora
-                </button>
-                <!-- Indicador de Status de Salvamento Automático -->
-                <div id="save-status-indicator" class="text-sm font-medium text-gray-500 min-w-[100px] sm:min-w-0">
-                    <!-- Status será injetado aqui -->
-                </div>
-            </div>
-            
-        </section>
-
-        <!-- 2. SEÇÃO: COISAS QUE FAZEM PARTE DE VOCÊ -->
-        <section id="fixed-elements-section" class="card">
-            <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Coisas que Fazem Parte de Você</h2>
-            <div id="fixed-elements-container" class="space-y-3">
-                <!-- Cards de elementos fixos serão injetados aqui -->
-            </div>
-            <div class="mt-4 flex gap-2">
-                <input type="text" id="new-fixed-element-input" placeholder="adicionar um elemento constante. ex: me sinto feliz fazendo coisas para quem amo." class="p-2 border rounded-lg w-full focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora">
-                <button onclick="addFixedElement()" class="px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition flex-shrink-0">
-                    adicionar
-                </button>
+                <p class="text-xs text-center text-gray-600 mt-4">Os dados ficam salvos neste navegador.<br>Faça backup para levar para outro PC.</p>
             </div>
         </section>
 
-        <!-- 2B. NOVA SEÇÃO: COISAS QUE VOCÊ GOSTA -->
-        <section id="likes-section" class="card">
-            <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Coisas que Você Gosta</h2>
-            <div id="likes-container" class="space-y-3">
-                <!-- Cards de gostos serão injetados aqui -->
-            </div>
-            <div class="mt-4 flex gap-2">
-                <input type="text" id="new-like-input" placeholder="adicionar um novo gosto ou interesse. ex: cheiro de chuva." class="p-2 border rounded-lg w-full focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora">
-                <button onclick="addLikeElement()" class="px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition flex-shrink-0">
-                    adicionar
+        <!-- === 2. CONTEÚDO DO APP === -->
+        <!-- Envolvido em uma DIV oculta por padrão -->
+        <div id="app-content" class="hidden space-y-6 sm:space-y-8">
+            
+            <!-- SEÇÃO PRINCIPAL - ÂNCORA DE IDENTIDADE -->
+            <section id="main-anchor" class="card main-anchor p-6 sm:p-10 text-center relative">
+                <!-- Botão de Sair (Logout) -->
+                <button onclick="handleLocalLogout()" class="absolute top-4 right-4 text-xs text-red-400 hover:text-red-300 transition border border-red-900/50 px-3 py-1 rounded-full bg-red-900/20">
+                    sair
                 </button>
-            </div>
-        </section>
 
-        <!-- 3. SEÇÃO: DIÁRIO DE CONTINUIDADE -->
-        <section id="journal-section" class="card">
-            <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Diário de Continuidade</h2>
-            
-            <div class="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
-                <label for="journal-entry" class="block text-sm font-medium mb-2 italic text-gray-600">
-                    Hoje me senti desconectada. O que continua sendo verdade sobre mim?
-                </label>
-                <textarea id="journal-entry" rows="3" class="p-2 border rounded-lg w-full resize-none focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora"></textarea>
-                <button onclick="addJournalEntry()" class="mt-3 px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition">
-                    registrar constância
-                </button>
-            </div>
-            
-            <div id="journal-entries-container" class="space-y-4 max-h-96 overflow-y-auto p-2">
-                <!-- Entradas do diário serão injetadas aqui -->
-            </div>
-        </section>
-        
-        <!-- 4. NOVA SEÇÃO: ÂNCORA DO AMOR -->
-        <section id="love-anchor-section" class="card">
-            <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-pink-400">Âncora do Amor</h2>
-            <p class="text-sm text-gray-500 mb-4">Frases de afirmação e carinho ditas por ou para pessoas amadas.</p>
-            
-            <div class="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div class="col-span-1 sm:col-span-2">
-                        <label for="love-quote-input" class="block text-sm font-medium mb-1 italic text-gray-600">Frase:</label>
-                        <textarea id="love-quote-input" rows="2" class="p-2 border rounded-lg w-full resize-none focus:ring-1 focus:ring-pink-400 focus:border-pink-400" placeholder="ex: 'sou grata(o) por ter você em minha vida.'"></textarea>
+                <div class="mb-6">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-gray-800 flex items-center justify-center gap-3">
+                        lumina
+                        <span class="text-amber-300 text-4xl sm:text-5xl" aria-hidden="true">☀️</span>
+                    </h1>
+                    <p class="text-sm sm:text-base text-gray-500 mt-2 tracking-[0.3em]">
+                        âncora de personalidade
+                    </p>
+                    <!-- Indicador de status -->
+                    <div id="loading-status" class="mt-3 text-sm text-amber-400 hidden items-center justify-center gap-2">
+                        <div class="spinner w-3 h-3 border-2"></div>
+                        carregando...
                     </div>
-                    <div class="col-span-1">
-                        <label for="love-source-input" class="block text-sm font-medium mb-1 italic text-gray-600">Fonte (Quem disse?):</label>
-                        <input type="text" id="love-source-input" class="p-2 border rounded-lg w-full" placeholder="ex: mãe, amiga, eu">
+                    <p id="user-id-display" class="mt-2 text-xs text-gray-400 break-all opacity-50">Usuário: ...</p>
+                </div>
+
+                <div class="text-left mb-6">
+                    <div class="p-3 rounded-xl bg-white/80">
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Sua Frase de Identidade:</label>
+                        <textarea id="identity-sentence-input" rows="2" class="p-2 border rounded-lg w-full resize-none" placeholder="adicione uma frase central. ex: eu não sou meus pensamentos nem minhas emoções."></textarea>
                     </div>
                 </div>
-                <button onclick="addLoveQuote()" class="mt-3 px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition bg-pink-500 hover:bg-pink-600">
-                    registrar amor
-                </button>
-            </div>
-            
-            <div id="love-quotes-container" class="space-y-4 max-h-96 overflow-y-auto p-2">
-                <!-- Frases de amor serão injetadas aqui -->
-            </div>
-        </section>
 
-        <footer class="text-center text-sm py-6 text-gray-500">
-            Lumina — O seu guia sutil de constância.
-            <br>
-            Dados armazenados na nuvem (Firestore).
-        </footer>
+                <!-- Qualidades & Valores (Layout adaptável) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                    <div class="p-3 rounded-xl bg-white/80">
+                        <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">Três Qualidades Centrais</h2>
+                        <ul id="qualities-list" class="list-disc list-inside pl-2 space-y-1 text-sm mb-3"></ul>
+                        <input type="text" id="qualities-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: gentil, forte, criativa">
+                        <p class="text-[11px] text-gray-500 mt-1">Separe por vírgula (máx. 3).</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-white/80">
+                        <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">Três Valores Pessoais</h2>
+                        <ul id="values-list" class="list-disc list-inside pl-2 space-y-1 text-sm mb-3"></ul>
+                        <input type="text" id="values-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: honestidade, liberdade, crescimento">
+                        <p class="text-[11px] text-gray-500 mt-1">Separe por vírgula (máx. 3).</p>
+                    </div>
+                </div>
+
+                <!-- Marcadores de Identidade -->
+                <div class="mt-6">
+                    <h3 class="text-md font-semibold mb-3 text-gray-700">Marcadores de Identidade (Pontos Fixos)</h3>
+                    <div id="markers-container" class="flex flex-wrap justify-center gap-2">
+                        <!-- Tags serão injetadas aqui -->
+                    </div>
+                    <div class="mt-3">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Adicione/edite marcadores (separe por vírgula):</label>
+                        <input type="text" id="markers-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: música, arte, sensibilidade, intuição">
+                    </div>
+                </div>
+                
+                <!-- Indicador de Status -->
+                <div class="mt-6 flex justify-end h-6">
+                    <div id="save-status-indicator" class="text-sm font-medium text-gray-500 transition-all duration-500 opacity-0">
+                        <!-- Status será injetado aqui -->
+                    </div>
+                </div>
+                
+            </section>
+
+            <!-- 2. SEÇÃO: COISAS QUE FAZEM PARTE DE VOCÊ -->
+            <section id="fixed-elements-section" class="card">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Coisas que Fazem Parte de Você</h2>
+                <div id="fixed-elements-container" class="space-y-3">
+                    <!-- Cards de elementos fixos serão injetados aqui -->
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <input type="text" id="new-fixed-element-input" placeholder="adicionar um elemento constante. ex: minha capacidade de amar incondicionalmente." class="p-2 border rounded-lg w-full focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora">
+                    <button onclick="addFixedElement()" class="px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition flex-shrink-0">
+                        adicionar
+                    </button>
+                </div>
+            </section>
+
+            <!-- 2B. NOVA SEÇÃO: COISAS QUE VOCÊ GOSTA -->
+            <section id="likes-section" class="card">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Coisas que Você Gosta</h2>
+                <div id="likes-container" class="space-y-3">
+                    <!-- Cards de gostos serão injetados aqui -->
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <input type="text" id="new-like-input" placeholder="adicionar um novo gosto ou interesse. ex: cheiro de chuva." class="p-2 border rounded-lg w-full focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora">
+                    <button onclick="addLikeElement()" class="px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition flex-shrink-0">
+                        adicionar
+                    </button>
+                </div>
+            </section>
+
+            <!-- 3. SEÇÃO: DIÁRIO DE CONTINUIDADE -->
+            <section id="journal-section" class="card">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Diário de Continuidade</h2>
+                
+                <div class="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+                    <label for="journal-entry" class="block text-sm font-medium mb-2 italic text-gray-600">
+                        Hoje me senti desconectada. O que continua sendo verdade sobre mim?
+                    </label>
+                    <textarea id="journal-entry" rows="3" class="p-2 border rounded-lg w-full resize-none focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora"></textarea>
+                    <button onclick="addJournalEntry()" class="mt-3 px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition">
+                        registrar constância
+                    </button>
+                </div>
+                
+                <div id="journal-entries-container" class="space-y-4 max-h-96 overflow-y-auto p-2">
+                    <!-- Entradas do diário serão injetadas aqui -->
+                </div>
+            </section>
+            
+            <!-- 4. NOVA SEÇÃO: ÂNCORA DO AMOR -->
+            <section id="love-anchor-section" class="card">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-pink-400">Âncora do Amor</h2>
+                <p class="text-sm text-gray-500 mb-4">Frases de afirmação e carinho ditas por ou para pessoas amadas.</p>
+                
+                <div class="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="col-span-1 sm:col-span-2">
+                            <label for="love-quote-input" class="block text-sm font-medium mb-1 italic text-gray-600">Frase:</label>
+                            <textarea id="love-quote-input" rows="2" class="p-2 border rounded-lg w-full resize-none focus:ring-1 focus:ring-pink-400 focus:border-pink-400" placeholder="ex: 'sou grata(o) por ter você em minha vida.'"></textarea>
+                        </div>
+                        <div class="col-span-1">
+                            <label for="love-source-input" class="block text-sm font-medium mb-1 italic text-gray-600">Fonte (Quem disse?):</label>
+                            <input type="text" id="love-source-input" class="p-2 border rounded-lg w-full" placeholder="ex: mãe, amiga, eu">
+                        </div>
+                    </div>
+                    <button onclick="addLoveQuote()" class="mt-3 px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition bg-pink-500 hover:bg-pink-600">
+                        registrar amor
+                    </button>
+                </div>
+                
+                <div id="love-quotes-container" class="space-y-4 max-h-96 overflow-y-auto p-2">
+                    <!-- Frases de amor serão injetadas aqui -->
+                </div>
+            </section>
+            
+            <!-- SEÇÃO DE BACKUP / TRANSFERÊNCIA -->
+            <section id="backup-section" class="card bg-gray-800 border border-gray-700">
+                <h2 class="text-lg font-semibold mb-4 text-gray-400 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Backup e Transferência
+                </h2>
+                <p class="text-xs text-gray-500 mb-4">Como não usamos servidor, seus dados ficam apenas neste computador. Para usar em outro lugar, baixe o backup e restaure lá.</p>
+                
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button onclick="exportData()" class="flex-1 px-4 py-3 bg-blue-600/20 border border-blue-500/50 text-blue-200 font-medium rounded-xl hover:bg-blue-600/30 transition text-sm flex items-center justify-center gap-2">
+                        ⬇ baixar meus dados (backup)
+                    </button>
+                    
+                    <button onclick="triggerImport()" class="flex-1 px-4 py-3 bg-emerald-600/20 border border-emerald-500/50 text-emerald-200 font-medium rounded-xl hover:bg-emerald-600/30 transition text-sm flex items-center justify-center gap-2">
+                        ⬆ restaurar dados (upload)
+                    </button>
+                    <!-- Input file invisível -->
+                    <input type="file" id="import-file" accept=".json" class="hidden" onchange="handleFileImport(this)">
+                </div>
+                <p id="import-status" class="text-xs text-center mt-2 h-4"></p>
+            </section>
+
+            <footer class="text-center text-sm py-6 text-gray-500">
+                Lumina — O seu guia sutil de constância.
+                <br>
+                Dados salvos no navegador (Local Storage).
+            </footer>
+        </div>
     </div>
 
-    <!-- Firebase Imports -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, getDoc, updateDoc, collection, query, where, addDoc, getDocs, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script>
+        // --- SISTEMA DE ARMAZENAMENTO LOCAL (SEM FIREBASE) ---
         
-        // Ativa o log para debug do Firestore
-        setLogLevel('debug');
-
-        // Variáveis globais obrigatórias do ambiente
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let db;
-        let auth;
-        let userId = null;
-        let unsubscribe = null; // Para guardar o listener do Firestore
-
-        // Estrutura de dados padrão do usuário
-        window.userData = {
-            identity_sentence: "Sou estabilidade mesmo quando balanço.",
-            qualities: ["Gentil", "Forte", "Criativa"],
-            values: ["Honestidade", "Liberdade", "Crescimento"],
-            markers: ["Música", "Natureza", "Sensibilidade", "Coragem"],
-            fixed_elements: [
-                "Amor por coisas antigas", 
-                "Apreço pela chuva", 
-                "Minha risada única", 
-                "O desejo de sempre aprender",
-            ],
-            likes: [
-                "Ler no silêncio", 
-                "Café forte", 
-                "Ver o mar"
-            ],
-            journal: [],
-            // NOVO: Âncora do Amor
-            love_quotes: [
-                { quote: "Você é mais forte do que pensa.", source: "Amiga", date: new Date().toISOString().split('T')[0] }
-            ]
+        // Chaves para o LocalStorage
+        const KEYS = {
+            USERS: 'lumina_users_v1', // Onde guardamos login/senha
+            SESSION: 'lumina_session_user', // Quem está logado agora
+            DATA_PREFIX: 'lumina_data_' // Prefixo para os dados de cada usuário
         };
+
+        // DADOS PADRÃO (ZERADOS/LIMPOS)
+        const defaultData = {
+            identity_sentence: "",
+            qualities: [],
+            values: [],
+            markers: [],
+            fixed_elements: [],
+            likes: [],
+            journal: [],
+            love_quotes: []
+        };
+
+        // Estado Global
+        let currentUser = null;
+
+        
+        window.userData = JSON.parse(JSON.stringify(defaultData)); // Cópia limpa
+
+        // --- FUNÇÕES DE BACKUP (EXPORTAR / IMPORTAR) ---
+        
+        window.exportData = function() {
+            if(!currentUser) return;
+            const dataStr = JSON.stringify(window.userData, null, 2); // Identado para ficar bonito se abrir
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lumina_backup_${currentUser}_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        window.triggerImport = function() {
+            document.getElementById('import-file').click();
+        }
+
+        window.handleFileImport = function(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            const statusEl = document.getElementById('import-status');
+            
+            statusEl.textContent = "Lendo arquivo...";
+            statusEl.className = "text-xs text-center mt-2 h-4 text-amber-400";
+
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Validação básica para ver se é um arquivo do Lumina
+                    if (importedData.qualities && Array.isArray(importedData.qualities)) {
+                        // Sucesso! Atualiza a memória
+                        window.userData = { ...defaultData, ...importedData };
+                        // Salva no disco local imediatamente
+                        saveData(); 
+                        // Atualiza a tela
+                        renderAll();
+                        populateInlineInputs();
+                        
+                        statusEl.textContent = "Dados restaurados com sucesso!";
+                        statusEl.className = "text-xs text-center mt-2 h-4 text-green-400";
+                        
+                        // Limpa a mensagem depois de 3s
+                        setTimeout(() => statusEl.textContent = "", 3000);
+                    } else {
+                        throw new Error("Formato inválido");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    statusEl.textContent = "Erro: O arquivo não parece ser um backup válido do Lumina.";
+                    statusEl.className = "text-xs text-center mt-2 h-4 text-red-400";
+                }
+                // Limpa o input para permitir re-upload do mesmo arquivo se precisar
+                input.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // --- FUNÇÕES DE AUTENTICAÇÃO LOCAL ---
+
+        function getUsersDB() {
+            const users = localStorage.getItem(KEYS.USERS);
+            return users ? JSON.parse(users) : {};
+        }
+
+        function saveUsersDB(users) {
+            localStorage.setItem(KEYS.USERS, JSON.stringify(users));
+        }
+
+        window.handleLocalRegister = function() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const errorDiv = document.getElementById('auth-error');
+
+            if(!email || !password) {
+                showError("Preencha e-mail e senha.");
+                return;
+            }
+            if(password.length < 4) {
+                showError("Senha muito curta.");
+                return;
+            }
+
+            const users = getUsersDB();
+            if(users[email]) {
+                showError("Usuário já existe. Tente entrar.");
+                return;
+            }
+
+            // Cria usuário
+            users[email] = { password: password, createdAt: new Date().toISOString() };
+            saveUsersDB(users);
+
+            // Loga automaticamente
+            loginUser(email);
+        };
+
+        window.handleLocalLogin = function() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+
+            if(!email || !password) {
+                showError("Preencha e-mail e senha.");
+                return;
+            }
+
+            const users = getUsersDB();
+            if(users[email] && users[email].password === password) {
+                loginUser(email);
+            } else {
+                showError("E-mail ou senha incorretos.");
+            }
+        };
+
+        window.handleLocalLogout = function() {
+            localStorage.removeItem(KEYS.SESSION);
+            currentUser = null;
+            
+            // Limpa UI
+            document.getElementById('auth-email').value = '';
+            document.getElementById('auth-password').value = '';
+            document.getElementById('app-content').classList.add('hidden');
+            document.getElementById('auth-section').classList.remove('hidden');
+        };
+
+        function loginUser(email) {
+            currentUser = email;
+            localStorage.setItem(KEYS.SESSION, email);
+            
+            document.getElementById('auth-error').classList.add('hidden');
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+            document.getElementById('user-id-display').textContent = `Usuário: ${email}`;
+            
+            loadData();
+        }
+
+        function showError(msg) {
+            const div = document.getElementById('auth-error');
+            div.textContent = msg;
+            div.classList.remove('hidden');
+        }
+
+        // --- SISTEMA DE DADOS ---
+
+        function loadData() {
+            if(!currentUser) return;
+            
+            const key = KEYS.DATA_PREFIX + currentUser;
+            const saved = localStorage.getItem(key);
+            
+            if(saved) {
+                // Merge com cuidado para não perder campos novos se a estrutura mudar
+                window.userData = { ...defaultData, ...JSON.parse(saved) };
+            } else {
+                window.userData = JSON.parse(JSON.stringify(defaultData));
+                saveData(); // Salva o inicial
+            }
+
+            renderAll();
+            populateInlineInputs();
+        }
 
         const saveStatusEl = document.getElementById('save-status-indicator');
 
-        // Caminho para o documento do usuário (privado)
-        const getUserDocRef = (db, uid) => {
-            return doc(db, `artifacts/${appId}/users/${uid}/user_data/anchor_data`);
-        };
+        function saveData() {
+            if(!currentUser) return;
 
-        /**
-         * Função utilitária para debounce (limitar chamadas frequentes de uma função).
-         */
+            try {
+                const key = KEYS.DATA_PREFIX + currentUser;
+                localStorage.setItem(key, JSON.stringify(window.userData));
+                
+                // Feedback Visual
+                if (saveStatusEl) {
+                    saveStatusEl.classList.remove('opacity-0');
+                    saveStatusEl.innerHTML = '<span class="text-green-400">Salvo!</span>';
+                    setTimeout(() => {
+                        saveStatusEl.classList.add('opacity-0');
+                    }, 1500);
+                }
+            } catch (e) {
+                console.error("Erro ao salvar localmente", e);
+                if (saveStatusEl) {
+                    saveStatusEl.classList.remove('opacity-0');
+                    saveStatusEl.innerHTML = '<span class="text-red-400">Erro (Espaço cheio?)</span>';
+                }
+            }
+        }
+
+        // Debounce para não salvar a cada letra
         function debounce(func, timeout = 500) {
             let timer;
             return (...args) => {
                 clearTimeout(timer);
-                timer = setTimeout(() => {
-                    func.apply(this, args);
-                }, timeout);
+                timer = setTimeout(() => { func.apply(this, args); }, timeout);
             };
         }
+        const debouncedSave = debounce(saveData, 1000);
+        window.saveDataToFirestore = saveData; // Mantendo o nome antigo para compatibilidade do botão manual
 
-        /**
-         * Função utilitária para limpar e separar entradas por vírgula.
-         * Garante que entradas vazias são filtradas.
-         */
+        // --- RENDERIZAÇÃO DA UI (Mesma Lógica) ---
+
         const cleanAndSplit = (value, limit = Infinity) => {
-            return (value || "")
-                .split(',')
-                .map(s => s.trim())
-                .filter(s => s.length > 0)
-                .slice(0, limit);
+            return (value || "").split(',').map(s => s.trim()).filter(s => s.length > 0).slice(0, limit);
         };
 
-        // --- FIREBASE E AUTENTICAÇÃO ---
-
-        async function initFirebase() {
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                
-                // Define a persistência para sessão (útil em alguns ambientes)
-                await setPersistence(auth, browserSessionPersistence);
-                
-                // Autenticação com token customizado (preferencial) ou anonimamente
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                // Configura o listener de autenticação
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        document.getElementById('user-id-display').textContent = `ID do Usuário: ${userId}`;
-                        // Inicia o listener em tempo real APENAS após a autenticação
-                        setupRealtimeListener(db, userId);
-                    } else {
-                        // Isso só deve acontecer se o signInAnonymously falhar, o que é raro.
-                        console.error("Usuário não autenticado.");
-                        document.getElementById('user-id-display').textContent = `ID do Usuário: Falha na Autenticação.`;
-                    }
-                });
-            } catch (error) {
-                console.error("Erro ao iniciar o Firebase/Auth:", error);
-                document.getElementById('loading-status').innerHTML = 'Falha ao conectar: ' + error.message;
-                document.getElementById('loading-status').classList.remove('hidden');
-            }
-        }
-
-        // --- CARREGAMENTO E SALVAMENTO DE DADOS (FIRESTORE) ---
-
-        /**
-         * Configura o listener de tempo real (onSnapshot) para o documento do usuário.
-         */
-        function setupRealtimeListener(db, uid) {
-            if (unsubscribe) {
-                unsubscribe(); // Cancela o listener anterior, se houver
-            }
-
-            const docRef = getUserDocRef(db, uid);
-            const loadingStatusEl = document.getElementById('loading-status');
-            loadingStatusEl.classList.remove('hidden');
-
-            // Listener de Snapshot para atualização em tempo real
-            unsubscribe = onSnapshot(docRef, (docSnap) => {
-                loadingStatusEl.classList.add('hidden'); // Esconde o spinner
-                
-                if (docSnap.exists()) {
-                    const storedData = docSnap.data();
-                    // Mescla os dados armazenados com a estrutura padrão (para novas propriedades)
-                    window.userData = { ...window.userData, ...storedData };
-                    console.log("Dados carregados do Firestore:", window.userData);
-                } else {
-                    // Documento não existe, cria-o com os dados padrão
-                    console.log("Nenhum dado encontrado. Criando documento inicial...");
-                    // Chama a função imediata, sem debounce, para criar o documento
-                    saveDataToFirestore(); 
-                }
-                
-                // Renderiza a UI após carregar ou criar os dados
-                renderAll();
-                populateInlineInputs();
-            }, (error) => {
-                console.error("Erro no listener do Firestore:", error);
-                loadingStatusEl.textContent = 'Erro ao carregar dados!';
-            });
-        }
-
-        /**
-         * Salva os dados atuais do usuário no Firestore.
-         */
-        async function saveDataToFirestore() {
-            if (!userId || !db) {
-                console.warn("Usuário ou DB não inicializado. Não foi possível salvar.");
-                return;
-            }
-            try {
-                if (saveStatusEl) {
-                    saveStatusEl.innerHTML = '<span class="text-amber-400">Salvando...</span>';
-                }
-                document.getElementById('manual-save-button').disabled = true; // Desabilita o botão enquanto salva
-                
-                const docRef = getUserDocRef(db, userId);
-                // Usa setDoc com merge: true para atualizar ou criar o documento
-                await setDoc(docRef, window.userData, { merge: true });
-
-                if (saveStatusEl) {
-                    saveStatusEl.innerHTML = '<span class="text-green-400">Salvo!</span>';
-                }
-                
-                // Limpa o status "Salvo!" após um breve momento e reabilita o botão
-                setTimeout(() => {
-                    if (saveStatusEl) saveStatusEl.textContent = '';
-                    document.getElementById('manual-save-button').disabled = false;
-                }, 2000);
-
-            } catch (error) {
-                console.error("Erro ao salvar dados no Firestore:", error);
-                if (saveStatusEl) {
-                    saveStatusEl.innerHTML = '<span class="text-red-400">Erro ao Salvar!</span>';
-                }
-                document.getElementById('manual-save-button').disabled = false;
-            }
-        }
-
-        // Cria uma versão do salvamento que espera 1 segundo (debounce) após a última digitação
-        const debouncedSave = debounce(saveDataToFirestore, 1000); 
-
-        // Funções globais expostas ao escopo da janela para uso no HTML
-        window.saveDataToFirestore = saveDataToFirestore; // O botão manual chama a função imediata
-
-
-        /**
-         * Renderiza todos os componentes da interface.
-         */
         function renderAll() {
-            renderAnchorDisplayLists();
-            renderFixedElements();
-            renderLikes();
-            renderJournal();
-            renderLoveQuotes(); // NOVO: Renderiza as frases de amor
-        }
-
-        // --- RENDERIZAÇÃO DA ÂNCORA PRINCIPAL ---
-
-        /**
-         * Renderiza apenas as listas de exibição (ul) e marcadores (tags).
-         * Não toca nos campos de input.
-         */
-        function renderAnchorDisplayLists() {
             renderList('qualities-list', window.userData.qualities);
             renderList('values-list', window.userData.values);
             renderMarkers();
+            renderFixedElements();
+            renderLikes();
+            renderJournal();
+            renderLoveQuotes();
         }
 
-        /**
-         * Renderiza listas simples com segurança.
-         */
         function renderList(id, items) {
             const ul = document.getElementById(id);
             const safeItems = Array.isArray(items) ? items : [];
             ul.innerHTML = safeItems.map(item => `<li class="text-gray-700">${item.trim()}</li>`).join('');
         }
 
-        /**
-         * Renderiza os marcadores de identidade.
-         */
         function renderMarkers() {
-            const markersContainer = document.getElementById('markers-container');
-            const safeMarkers = Array.isArray(window.userData.markers) ? window.userData.markers : [];
-            markersContainer.innerHTML = safeMarkers.map(marker => `
-                <span class="marker-tag text-sm">${marker.trim()}</span>
-            `).join('');
+            const container = document.getElementById('markers-container');
+            const items = Array.isArray(window.userData.markers) ? window.userData.markers : [];
+            container.innerHTML = items.map(marker => `<span class="marker-tag text-sm">${marker.trim()}</span>`).join('');
         }
 
-        /**
-         * Preenche os campos inline com os dados atuais (apenas na carga inicial).
-         */
         function populateInlineInputs() {
-            const identityInput = document.getElementById('identity-sentence-input');
-            const qualitiesInput = document.getElementById('qualities-input');
-            const valuesInput = document.getElementById('values-input');
-            const markersInput = document.getElementById('markers-input');
-
-            // Verifica se os elementos existem antes de manipular
-            if (identityInput) identityInput.value = window.userData.identity_sentence || '';
-            if (qualitiesInput) qualitiesInput.value = Array.isArray(window.userData.qualities) ? window.userData.qualities.join(', ') : '';
-            if (valuesInput) valuesInput.value = Array.isArray(window.userData.values) ? window.userData.values.join(', ') : '';
-            if (markersInput) markersInput.value = Array.isArray(window.userData.markers) ? window.userData.markers.join(', ') : '';
+            const i1 = document.getElementById('identity-sentence-input'); if(i1) i1.value = window.userData.identity_sentence || '';
+            const i2 = document.getElementById('qualities-input'); if(i2) i2.value = (window.userData.qualities || []).join(', ');
+            const i3 = document.getElementById('values-input'); if(i3) i3.value = (window.userData.values || []).join(', ');
+            const i4 = document.getElementById('markers-input'); if(i4) i4.value = (window.userData.markers || []).join(', ');
         }
 
-        /**
-         * Configura os listeners dos campos inline para salvar automaticamente.
-         * AGORA COM DETECÇÃO DE VÍRGULA: Salva imediatamente ao digitar vírgula.
-         */
         function setupInlineInputs() {
-            const identityInput = document.getElementById('identity-sentence-input');
-            const qualitiesInput = document.getElementById('qualities-input');
-            const valuesInput = document.getElementById('values-input');
-            const markersInput = document.getElementById('markers-input');
-
-            // Listener para Frase de Identidade
-            if (identityInput) {
-                identityInput.addEventListener('input', (event) => {
-                    window.userData.identity_sentence = event.target.value;
-                    debouncedSave();
-                });
-            }
-
-            // Listener para Qualidades
-            if (qualitiesInput) {
-                qualitiesInput.addEventListener('input', (event) => {
-                    window.userData.qualities = cleanAndSplit(event.target.value, 3);
-                    renderList('qualities-list', window.userData.qualities);
-                    
-                    // Verifica se o último caractere digitado ou o final do valor é uma vírgula
-                    // Isso força o salvamento imediato
-                    const isComma = (event.data === ',') || (event.target.value.trim().endsWith(','));
-                    
-                    if (isComma) {
-                        saveDataToFirestore();
+            const setup = (id, field, isArray, limit) => {
+                const el = document.getElementById(id);
+                if(!el) return;
+                el.addEventListener('input', (e) => {
+                    if(isArray) {
+                        window.userData[field] = cleanAndSplit(e.target.value, limit);
+                        // Re-render immediately for preview
+                        if(field === 'qualities' || field === 'values') renderList(id.replace('input', 'list'), window.userData[field]);
+                        if(field === 'markers') renderMarkers();
                     } else {
-                        debouncedSave();
+                        window.userData[field] = e.target.value;
                     }
+                    
+                    // Save Logic
+                    const isComma = (e.data === ',') || (e.target.value.trim().endsWith(','));
+                    if (isComma && isArray) saveData(); else debouncedSave();
                 });
-            }
+            };
 
-            // Listener para Valores
-            if (valuesInput) {
-                valuesInput.addEventListener('input', (event) => {
-                    window.userData.values = cleanAndSplit(event.target.value, 3);
-                    renderList('values-list', window.userData.values);
-                    
-                    const isComma = (event.data === ',') || (event.target.value.trim().endsWith(','));
-                    
-                    if (isComma) {
-                        saveDataToFirestore();
-                    } else {
-                        debouncedSave();
-                    }
-                });
-            }
-
-            // Listener para Marcadores
-            if (markersInput) {
-                markersInput.addEventListener('input', (event) => {
-                    window.userData.markers = cleanAndSplit(event.target.value);
-                    renderMarkers();
-                    
-                    const isComma = (event.data === ',') || (event.target.value.trim().endsWith(','));
-                    
-                    if (isComma) {
-                        saveDataToFirestore();
-                    } else {
-                        debouncedSave();
-                    }
-                });
-            }
+            setup('identity-sentence-input', 'identity_sentence', false);
+            setup('qualities-input', 'qualities', true, 3);
+            setup('values-input', 'values', true, 3);
+            setup('markers-input', 'markers', true);
         }
 
-        // --- COISAS QUE FAZEM PARTE DE VOCÊ (ELEMENTOS FIXOS) ---
+        // --- ADD/REMOVE FUNCTIONS ---
 
-        /**
-         * Renderiza a lista de elementos fixos.
-         */
-        function renderFixedElements() {
-            const container = document.getElementById('fixed-elements-container');
-            const safeElements = Array.isArray(window.userData.fixed_elements) ? window.userData.fixed_elements : [];
-            container.innerHTML = safeElements.map((element, index) => `
-                <div class="card p-3 flex justify-between items-center bg-cor-secundaria/50 text-sm">
-                    <p class="font-medium text-gray-800">${element}</p>
-                    <button onclick="removeFixedElement(${index})" class="text-red-500 hover:text-red-700 transition ml-4 flex-shrink-0" title="Remover">
-                        &times;
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        /**
-         * Adiciona um novo elemento fixo.
-         */
         window.addFixedElement = function() {
             const input = document.getElementById('new-fixed-element-input');
-            const newElement = input.value.trim();
-            if (newElement) {
-                if (!Array.isArray(window.userData.fixed_elements)) {
-                    window.userData.fixed_elements = [];
-                }
-                window.userData.fixed_elements.push(newElement);
-                input.value = ''; // Limpa o input
-                saveDataToFirestore();
-                renderFixedElements();
+            const val = input.value.trim();
+            if(val) {
+                if(!Array.isArray(window.userData.fixed_elements)) window.userData.fixed_elements = [];
+                window.userData.fixed_elements.push(val);
+                input.value = '';
+                saveData(); renderFixedElements();
             }
         }
-
-        /**
-         * Remove um elemento fixo pelo índice.
-         */
-        window.removeFixedElement = function(index) {
-            if (Array.isArray(window.userData.fixed_elements)) {
-                window.userData.fixed_elements.splice(index, 1);
-                saveDataToFirestore();
-                renderFixedElements();
-            }
+        window.removeFixedElement = function(i) {
+            window.userData.fixed_elements.splice(i, 1);
+            saveData(); renderFixedElements();
         }
-        
-        // --- COISAS QUE VOCÊ GOSTA ---
-        
-        /**
-         * Renderiza a lista de gostos.
-         */
-        function renderLikes() {
-            const container = document.getElementById('likes-container');
-            const safeLikes = Array.isArray(window.userData.likes) ? window.userData.likes : [];
-            container.innerHTML = safeLikes.map((element, index) => `
+        function renderFixedElements() {
+            const container = document.getElementById('fixed-elements-container');
+            container.innerHTML = (window.userData.fixed_elements || []).map((item, i) => `
                 <div class="card p-3 flex justify-between items-center bg-cor-secundaria/50 text-sm">
-                    <p class="font-medium text-gray-800">${element}</p>
-                    <button onclick="removeLikeElement(${index})" class="text-red-500 hover:text-red-700 transition ml-4 flex-shrink-0" title="Remover">
-                        &times;
-                    </button>
+                    <p class="font-medium text-gray-800">${item}</p>
+                    <button onclick="removeFixedElement(${i})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
                 </div>
             `).join('');
         }
 
-        /**
-         * Adiciona um novo gosto.
-         */
         window.addLikeElement = function() {
             const input = document.getElementById('new-like-input');
-            const newElement = input.value.trim();
-            if (newElement) {
-                if (!Array.isArray(window.userData.likes)) {
-                    window.userData.likes = [];
-                }
-                window.userData.likes.push(newElement);
-                input.value = ''; // Limpa o input
-                saveDataToFirestore();
-                renderLikes();
+            const val = input.value.trim();
+            if(val) {
+                if(!Array.isArray(window.userData.likes)) window.userData.likes = [];
+                window.userData.likes.push(val);
+                input.value = '';
+                saveData(); renderLikes();
             }
         }
-
-        /**
-         * Remove um gosto pelo índice.
-         */
-        window.removeLikeElement = function(index) {
-            if (Array.isArray(window.userData.likes)) {
-                window.userData.likes.splice(index, 1);
-                saveDataToFirestore();
-                renderLikes();
-            }
+        window.removeLikeElement = function(i) {
+            window.userData.likes.splice(i, 1);
+            saveData(); renderLikes();
+        }
+        function renderLikes() {
+            const container = document.getElementById('likes-container');
+            container.innerHTML = (window.userData.likes || []).map((item, i) => `
+                <div class="card p-3 flex justify-between items-center bg-cor-secundaria/50 text-sm">
+                    <p class="font-medium text-gray-800">${item}</p>
+                    <button onclick="removeLikeElement(${i})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
+                </div>
+            `).join('');
         }
 
-        // --- DIÁRIO DE CONTINUIDADE ---
-
-        /**
-         * Renderiza as entradas do diário.
-         */
+        window.addJournalEntry = function() {
+            const txt = document.getElementById('journal-entry');
+            const val = txt.value.trim();
+            if(val) {
+                if(!Array.isArray(window.userData.journal)) window.userData.journal = [];
+                window.userData.journal.push({ date: new Date().toISOString().split('T')[0], entry: val });
+                txt.value = '';
+                saveData(); renderJournal();
+            }
+        }
+        window.removeJournalEntry = function(originalIndex) {
+             const realIndex = window.userData.journal.length - 1 - originalIndex; 
+             window.userData.journal.splice(originalIndex, 1);
+             saveData(); renderJournal();
+        }
         function renderJournal() {
             const container = document.getElementById('journal-entries-container');
-            const safeJournal = Array.isArray(window.userData.journal) ? window.userData.journal : [];
-
-            if (safeJournal.length === 0) {
-                container.innerHTML = '<p class="text-center italic text-gray-500">Nenhum registro de constância ainda. Registre sua primeira verdade!</p>';
-                return;
-            }
-
-            // Inverte a ordem para mostrar o mais recente primeiro
-            const sortedJournal = [...safeJournal].reverse();
-
-            container.innerHTML = sortedJournal.map((entry, index) => {
-                // Garante que o objeto entry tem as propriedades necessárias
-                const dateString = entry.date || new Date().toISOString().split('T')[0];
-                const date = new Date(dateString);
-                const formattedDate = date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-                const entryText = entry.entry || "Entrada de diário vazia.";
-                const originalIndex = safeJournal.length - 1 - index; // Calcula o índice original
-
+            const items = window.userData.journal || [];
+            if(items.length === 0) { container.innerHTML = '<p class="text-center italic text-gray-500">Nenhum registro.</p>'; return; }
+            
+            const reversed = [...items].reverse();
+            container.innerHTML = reversed.map((entry, i) => {
+                const realIndex = items.length - 1 - i;
+                const date = new Date(entry.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
                 return `
                     <div class="card p-4 border-l-4 border-cor-ancora text-sm flex justify-between items-start">
-                        <div>
-                            <p class="text-xs text-gray-500 mb-1">${formattedDate}</p>
-                            <p class="text-base text-gray-700">${entryText}</p>
-                        </div>
-                        <button onclick="removeJournalEntry(${originalIndex})" class="text-red-500 hover:text-red-700 transition ml-4 flex-shrink-0" title="Remover">
-                            &times;
-                        </button>
+                        <div><p class="text-xs text-gray-500 mb-1">${date}</p><p class="text-base text-gray-700">${entry.entry}</p></div>
+                        <button onclick="removeJournalEntry(${realIndex})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
                     </div>
                 `;
             }).join('');
         }
-        
-        /**
-         * Remove uma entrada do diário pelo índice original.
-         */
-        window.removeJournalEntry = function(index) {
-            if (Array.isArray(window.userData.journal)) {
-                window.userData.journal.splice(index, 1);
-                saveDataToFirestore();
-                renderJournal();
+
+        window.addLoveQuote = function() {
+            const qIn = document.getElementById('love-quote-input');
+            const sIn = document.getElementById('love-source-input');
+            const q = qIn.value.trim();
+            const s = sIn.value.trim();
+            if(q) {
+                if(!Array.isArray(window.userData.love_quotes)) window.userData.love_quotes = [];
+                window.userData.love_quotes.push({ quote: q, source: s || "Você", date: new Date().toISOString().split('T')[0] });
+                qIn.value = ''; sIn.value = '';
+                saveData(); renderLoveQuotes();
             }
         }
-
-
-        /**
-         * Adiciona uma nova entrada ao diário.
-         */
-        window.addJournalEntry = function() {
-            const textarea = document.getElementById('journal-entry');
-            const newEntry = textarea.value.trim();
-            if (newEntry) {
-                // Garante que é um array antes de adicionar
-                if (!Array.isArray(window.userData.journal)) {
-                    window.userData.journal = [];
-                }
-                const today = new Date().toISOString().split('T')[0]; // Data YYYY-MM-DD
-                window.userData.journal.push({
-                    date: today,
-                    entry: newEntry
-                });
-                textarea.value = ''; // Limpa o textarea
-                saveDataToFirestore();
-                renderJournal();
-            }
+        window.removeLoveQuote = function(originalIndex) {
+            window.userData.love_quotes.splice(originalIndex, 1);
+            saveData(); renderLoveQuotes();
         }
-        
-        // --- ÂNCORA DO AMOR ---
-        
-        /**
-         * Renderiza as frases de amor.
-         */
         function renderLoveQuotes() {
             const container = document.getElementById('love-quotes-container');
-            const safeQuotes = Array.isArray(window.userData.love_quotes) ? window.userData.love_quotes : [];
-
-            if (safeQuotes.length === 0) {
-                container.innerHTML = '<p class="text-center italic text-gray-500">Nenhuma frase de amor registrada ainda.</p>';
-                return;
-            }
+            const items = window.userData.love_quotes || [];
+            if(items.length === 0) { container.innerHTML = '<p class="text-center italic text-gray-500">Nenhuma frase.</p>'; return; }
             
-            // Inverte a ordem para mostrar o mais recente primeiro
-            const sortedQuotes = [...safeQuotes].reverse();
-
-            container.innerHTML = sortedQuotes.map((item, index) => {
-                const dateString = item.date || new Date().toISOString().split('T')[0];
-                const date = new Date(dateString);
-                const formattedDate = date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
-                const quoteText = item.quote || "Citação vazia.";
-                const source = item.source || "Desconhecida";
-                const originalIndex = safeQuotes.length - 1 - index; // Calcula o índice original
-
+            const reversed = [...items].reverse();
+            container.innerHTML = reversed.map((item, i) => {
+                const realIndex = items.length - 1 - i;
+                const date = new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
                 return `
                     <div class="card p-4 love-quote text-sm flex justify-between items-start">
                         <div>
-                            <p class="text-lg italic text-gray-700 leading-snug">"${quoteText}"</p>
-                            <p class="text-xs text-gray-500 mt-1">- ${source} <span class="ml-2">(${formattedDate})</span></p>
+                            <p class="text-lg italic text-gray-700 leading-snug">"${item.quote}"</p>
+                            <p class="text-xs text-gray-500 mt-1">- ${item.source} <span class="ml-2">(${date})</span></p>
                         </div>
-                        <button onclick="removeLoveQuote(${originalIndex})" class="text-red-500 hover:text-red-700 transition ml-4 flex-shrink-0" title="Remover">
-                            &times;
-                        </button>
+                        <button onclick="removeLoveQuote(${realIndex})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
                     </div>
                 `;
             }).join('');
         }
-        
-        /**
-         * Adiciona uma nova frase de amor.
-         */
-        window.addLoveQuote = function() {
-            const quoteInput = document.getElementById('love-quote-input');
-            const sourceInput = document.getElementById('love-source-input');
-            const quote = quoteInput.value.trim();
-            const source = sourceInput.value.trim();
 
-            if (quote) {
-                if (!Array.isArray(window.userData.love_quotes)) {
-                    window.userData.love_quotes = [];
-                }
-                
-                const today = new Date().toISOString().split('T')[0];
-                window.userData.love_quotes.push({
-                    quote: quote,
-                    source: source || "Você",
-                    date: today
-                });
-                
-                quoteInput.value = ''; // Limpa o input
-                sourceInput.value = '';
-                saveDataToFirestore();
-                renderLoveQuotes();
-            }
-        }
-        
-        /**
-         * Remove uma frase de amor pelo índice original.
-         */
-        window.removeLoveQuote = function(index) {
-            if (Array.isArray(window.userData.love_quotes)) {
-                window.userData.love_quotes.splice(index, 1);
-                saveDataToFirestore();
-                renderLoveQuotes();
-            }
-        }
+        // --- INICIALIZAÇÃO ---
 
-
-        // === INICIALIZAÇÃO ===
-        function startLuminaApp() {
-            try {
-                setupInlineInputs(); // Configura os listeners dos inputs
-                initFirebase();      // Inicia Firebase e Auth (que chama o listener do Firestore)
-            } catch (error) {
-                console.error('Falha ao iniciar o Lumina:', error);
+        function initApp() {
+            setupInlineInputs();
+            
+            // Tenta login automático (Sessão persistente simples)
+            const sessionUser = localStorage.getItem(KEYS.SESSION);
+            if(sessionUser) {
+                loginUser(sessionUser);
+            } else {
+                document.getElementById('auth-section').classList.remove('hidden');
             }
         }
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', startLuminaApp);
+            document.addEventListener('DOMContentLoaded', initApp);
         } else {
-            startLuminaApp();
+            initApp();
         }
 
     </script>
