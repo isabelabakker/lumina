@@ -10,10 +10,11 @@ Lumina é uma aplicação web/mobile construída em HTML + Tailwind CDN voltada 
 - Preencher um diário de continuidade para lembrar verdades estáveis em dias difíceis.
 
 ## Como usar
-1. Abra "lumina.html" em qualquer navegador através do Git-Forge HTML Preview ou após baixar a pasta do projeto no seu computador.
+1. Baixe "lumina.html" no seu computador pessoal e abra o arquivo em qualquer navegador.
 2. Preencha as caixas na própria âncora (as listas se atualizam automaticamente).
 3. Use o bloco “coisas que fazem parte de você” para adicionar itens fixos.
 4. Registre entradas no diário sempre que sentir desconexão.
+
 
 
 
