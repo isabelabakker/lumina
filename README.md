@@ -1,4 +1,4 @@
-# ☀️ Lumina — Âncora de personalidade
+# ☀️ Lumina — Âncora emocional
 
 Lumina é uma aplicação web/mobile construída em HTML + Tailwind CDN voltada para pessoas com Transtorno de Personalidade Borderline (TPB), criada com o intuito de auxiliar na ancoragem da identidade nos momentos de oscilação emocional e sensação de instabilidade na identidade. O aplicativo funciona como como uma ferramenta de apoio diário, oferecendo um painel único, discreto e totalmente local para resgatar qualidades, valores e registros que reforçam a continuidade pessoal.
 
@@ -16,6 +16,7 @@ Lumina é uma aplicação web/mobile construída em HTML + Tailwind CDN voltada 
 3. Use o bloco “coisas que fazem parte de você” para adicionar itens fixos;
 4. Registre entradas no diário sempre que sentir desconexão;
 5. Adicione frases à "Âncora do amor" para ler diariamente.
+
 
 
 
