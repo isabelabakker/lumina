@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lumina</title>
+    <!-- Define o favicon usando o mesmo arquivo SVG do logo -->
+    <link rel="icon" type="image/svg+xml" href="images/logo.svg">
+    <!-- Carrega o Tailwind CSS para estilos rápidos e responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Define a paleta de cores acolhedoras e estáveis */
+        :root {
+            --cor-primaria: #07090f;
+            --cor-secundaria: #111629;
+            --cor-texto: #f1f4ff;
+            --cor-ancora: #ff8c42;
+            --cor-suave: #1f2a3f;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cor-primaria);
+            color: var(--cor-texto);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 16px; /* Ajuste para mobile */
+            text-transform: lowercase;
+        }
+
+        .card {
+            background-color: var(--cor-secundaria);
+            padding: 20px; /* Ajuste para mobile */
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+        }
+
+        /* Estilo da seção principal (a âncora) */
+        .main-anchor {
+            background-color: #131b33;
+            border: 1px solid #1f2742;
+        }
+
+        /* Estilo dos marcadores de identidade */
+        .marker-tag {
+            background-color: var(--cor-ancora);
+            color: #0b0d17;
+            font-weight: 500;
+            padding: 6px 14px; /* Mais padding para touch mobile */
+            border-radius: 9999px;
+            cursor: default; /* Não é interativo */
+        }
+        
+        /* Custom style for the journal button to use the accent color */
+        .journal-button {
+            background-color: var(--cor-ancora);
+            transition: background-color 0.2s;
+        }
+        .journal-button:hover:not(:disabled) {
+            background-color: #ffb166;
+        }
+
+        .journal-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Fixes para formulário mobile */
+        input[type="text"], textarea, input[type="email"], input[type="password"], input[type="date"] {
+            padding: 10px;
+            background-color: #0d1221;
+            border: 1px solid #232a40;
+            color: var(--cor-texto);
+            text-transform: none;
+        }
+
+        /* Ajuste do ícone de data para ser visível no tema escuro */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8);
+        }
+
+        /* Spinner customizado para a estabilização */
+        .spinner {
+            width: 3rem; 
+            height: 3rem; 
+            border: 6px solid var(--cor-suave); 
+            border-top: 6px solid var(--cor-ancora); 
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .bg-white\/80 {
+            background-color: rgba(13, 19, 36, 0.75) !important;
+        }
+
+        .bg-gray-50 {
+            background-color: rgba(10, 15, 30, 0.7) !important;
+        }
+
+        .border-gray-200 {
+            border-color: #2b324a !important;
+        }
+
+        .border-gray-300 {
+            border-color: #353c55 !important;
+        }
+
+        .text-gray-800,
+        .text-gray-700 {
+            color: var(--cor-texto) !important;
+        }
+
+        .text-gray-600 {
+            color: #c5cbe6 !important;
+        }
+
+        .text-gray-500 {
+            color: #9aa3c7 !important;
+        }
+
+        .text-gray-400 {
+            color: #7c84ac !important;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #7c84ac;
+            text-transform: none;
+        }
+        
+        /* Estilo para as frases de amor (citações) */
+        .love-quote {
+            border-left: 4px solid #f687b3; /* Um rosa suave para amor */
+        }
+
+        /* --- FIX PARA ALINHAMENTO DE INPUTS DE DATA E TEXTO NO MOBILE --- */
+        /* Garante que o box-sizing seja respeitado para evitar estouro devido ao ícone do seletor de data */
+        #love-anchor-section input {
+            box-sizing: border-box !important;
+            /* Força a aparência a não ser nativa para melhor controle de largura */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        /* Ajusta o padding para que o campo de data e texto tenham exatamente o mesmo tamanho se usarem o mesmo p-2 */
+        #love-anchor-section input[type="date"] {
+            /* Remove o padding padrão extra do Chrome/Safari para date inputs */
+            padding-right: 10px; 
+        }
+        
+        /* --- FIM FIX --- */
+
+        /* Utilitário para controle de visibilidade do login */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="selection:bg-orange-500/40">
+
+    <div class="max-w-4xl w-full space-y-6 sm:space-y-8">
+
+        
+        <!-- === 1. TELA DE LOGIN E CADASTRO === -->
+        <section id="auth-section" class="card p-8 sm:p-12 text-center max-w-md mx-auto mt-10">
+            <div class="mb-8">
+                <!-- Combina title.svg e logo.svg na mesma linha, usando classes de alinhamento vertical -->
+                <h1 class="flex items-center justify-center gap-3 mb-1">
+                    <!-- Ajustando o tamanho da imagem title.svg para h-12/sm:h-14 -->
+                    <img src="images/title.svg" alt="Lumina Logo Texto" class="h-12 sm:h-14 w-auto">
+                    <!-- Ajustando o tamanho do ícone logo.svg para ser h-9/sm:h-11 -->
+                    <!-- Adicionando bg-transparent para evitar fundo acidental no container do logo -->
+                    <span class="h-9 w-9 sm:h-11 sm:w-11 flex items-center justify-center bg-transparent">
+                        <img src="images/logo.svg" alt="Lumina Logo Ícone" class="h-full w-full">
+                    </span>
+                </h1>
+                <!-- O tamanho do subtítulo é alterado de text-base para text-sm -->
+                <p class="text-sm text-gray-500 tracking-[0.3em] mt-1">sua âncora emocional</p>
+            </div>
+
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1 ml-1 uppercase tracking-wider">E-mail</label>
+                    <input type="email" id="auth-email" class="w-full p-3 rounded-lg border focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition" placeholder="seu@email.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1 ml-1 uppercase tracking-wider">Senha</label>
+                    <input type="password" id="auth-password" class="w-full p-3 rounded-lg border focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition" placeholder="******">
+                </div>
+                
+                <div id="auth-error" class="text-red-400 text-sm text-center hidden bg-red-900/20 p-2 rounded border border-red-800/50"></div>
+
+                <div class="pt-4 flex flex-col gap-3">
+                    <button onclick="handleLocalLogin()" id="btn-login" class="w-full py-3 journal-button text-white font-bold rounded-xl hover:opacity-90 transition shadow-lg">
+                        entrar
+                    </button>
+                    <button onclick="handleLocalRegister()" id="btn-register" class="w-full py-3 bg-gray-700 text-gray-300 font-medium rounded-xl hover:bg-gray-600 transition">
+                        criar nova conta
+                    </button>
+                </div>
+                <p class="text-xs text-center text-gray-600 mt-4">seus dados ficam salvos neste navegador, faça backup para utilizar em outro dispositivo.</p>
+            </div>
+        </section>
+
+        <!-- === 1B/1C. EXPLICAÇÃO CONSOLIDADA === -->
+        <section id="welcome-explanation" class="card p-6 sm:p-8 text-center max-w-md mx-auto space-y-4 border-l-4 border-amber-500/80 bg-cor-secundaria/50">
+            <!-- 1. Título alterado -->
+            <h2 class="text-xl font-bold text-amber-300 mb-4">O que é o Lumina? 🤔</h2>
+            
+            <!-- Parágrafo 1: Propósito -->
+            <p class="text-sm text-gray-300 leading-relaxed text-justify">
+                O <b>lumina</b> é um aplicativo web voltado para pessoas com <b>Transtorno de Personalidade Borderline</b> (TPB). é uma ferramenta de apoio diário para auxiliar na <b></b>ancoragem da identidade</b> em momentos de oscilação.<br><br>
+                Ele oferece um painel único, discreto e local que permite ao usuário resgatar <b>características</b>, <b>valores</b> e <b>registros pessoais</b>, reforçando o sentido de continuidade pessoal.
+            </p>
+
+            <!-- 2. Linha cinza substituindo o título "Funcionalidades" -->
+            <div class="border-t border-gray-700/50 pt-4"></div>
+            
+            <ul class="text-sm text-gray-300 list-disc list-inside text-left ml-4 space-y-1">
+                <li>✍️ Mantenha uma <b>frase central</b> de identidade</li>
+                <li>📚 Liste três <b>qualidades centrais</b> e três <b>valores pessoais</b></li>
+                <li>*️⃣ Mantenha <b>marcadores de identidade</b> que funcionam como âncoras rápidas</li>
+                <li>📝 Guarde <b>elementos fixos</b> da personalidade e atualize a lista quando quiser</li>
+                <li>📖 Guarde um diário de continuidade para lembrar-se de <b>verdades estáveis</b> em dias difíceis</li>
+                <li>❤️ <b>Âncora do amor</b>: frases de afirmação e carinho ditas por ou para pessoas amadas (incluindo de você para você mesmo!)</li>
+            </ul>
+            
+
+        </section>
+
+        <!-- === 1D. EXPLICAÇÃO - COMO USAR (BLOCO REMOVIDO) === -->
+
+
+        <!-- === 2. CONTEÚDO DO APP === -->
+        <!-- Envolvido em uma DIV oculta por padrão -->
+        <div id="app-content" class="hidden space-y-6 sm:space-y-8">
+            
+            <!-- SEÇÃO PRINCIPAL - ÂNCORA DE IDENTIDADE -->
+            <section id="main-anchor" class="card main-anchor p-6 sm:p-10 text-center relative">
+                <!-- Botão de Sair (Logout) -->
+                <button onclick="handleLocalLogout()" class="absolute top-4 right-4 text-xs text-red-400 hover:text-red-300 transition border border-red-900/50 px-3 py-1 rounded-full bg-red-900/20">
+                    sair
+                </button>
+
+                <div class="mb-6">
+                    <!-- Combina title.svg e logo.svg na mesma linha, usando classes de alinhamento vertical -->
+                    <h1 class="flex items-center justify-center gap-3 mb-1">
+                        <!-- Ajustando o tamanho da imagem title.svg para h-12/sm:h-14 -->
+                        <img src="images/title.svg" alt="Lumina Logo Texto" class="h-12 sm:h-14 w-auto">
+                        <!-- Ajustando o tamanho do ícone logo.svg para ser h-9/sm:h-11 -->
+                        <!-- Adicionando bg-transparent para evitar fundo acidental no container do logo -->
+                        <span class="h-9 w-9 sm:h-11 sm:w-11 flex items-center justify-center bg-transparent">
+                            <img src="images/logo.svg" alt="Lumina Logo Ícone" class="h-full w-full">
+                        </span>
+                    </h1>
+                    <!-- O tamanho do subtítulo é alterado de text-base para text-sm -->
+                    <p class="text-sm text-gray-500 mt-1 tracking-[0.3em]">
+                        sua âncora emocional
+                    </p>
+                    <!-- Indicador de status -->
+                    <div id="loading-status" class="mt-3 text-sm text-amber-400 hidden items-center justify-center gap-2">
+                        <div class="spinner w-3 h-3 border-2"></div>
+                        carregando...
+                    </div>
+                    <p id="user-id-display" class="mt-2 text-xs text-gray-400 break-all opacity-50">Usuário: ...</p>
+                </div>
+
+                <div class="text-left mb-6">
+                    <div class="p-3 rounded-xl bg-white/80">
+                        <label class="block text-sm font-medium text-gray-600 mb-1">frase central de identidade:</label>
+                        <textarea id="identity-sentence-input" rows="2" class="p-2 border rounded-lg w-full resize-none" placeholder="adicione uma frase central. ex: eu não sou meus pensamentos nem minhas emoções, mas tenho o direito de sentir."></textarea>
+                    </div>
+                </div>
+
+                <!-- Qualidades & Valores (Layout adaptável) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                    <div class="p-3 rounded-xl bg-white/80">
+                        <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">Três Qualidades Centrais</h2>
+                        <ul id="qualities-list" class="list-disc list-inside pl-2 space-y-1 text-sm mb-3"></ul>
+                        <input type="text" id="qualities-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: gentil, forte, criativa">
+                        <p class="text-[11px] text-gray-500 mt-1">Separe por vírgula (máx. 3).</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-white/80">
+                        <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">Três Valores Pessoais</h2>
+                        <ul id="values-list" class="list-disc list-inside pl-2 space-y-1 text-sm mb-3"></ul>
+                        <input type="text" id="values-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: honestidade, liberdade, crescimento">
+                        <p class="text-[11px] text-gray-500 mt-1">Separe por vírgula (máx. 3).</p>
+                    </div>
+                </div>
+
+                <!-- Marcadores de Identidade -->
+                <div class="mt-6">
+                    <h3 class="text-md font-semibold mb-3 text-gray-700">Marcadores de Identidade (Pontos Fixos)</h3>
+                    <div id="markers-container" class="flex flex-wrap justify-center gap-2">
+                        <!-- Tags serão injetadas aqui -->
+                    </div>
+                    <div class="mt-3">
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Adicione/edite marcadores (separe por vírgula):</label>
+                        <input type="text" id="markers-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: música, arte, sensibilidade, intuição">
+                    </div>
+                </div>
+                
+                <!-- Indicador de Status -->
+                <div class="mt-6 flex justify-end h-6">
+                    <div id="save-status-indicator" class="text-sm font-medium text-gray-500 transition-all duration-500 opacity-0">
+                        <!-- Status será injetado aqui -->
+                    </div>
+                </div>
+                
+            </section>
+
+            <!-- 2. SEÇÃO: COISAS QUE FAZEM PARTE DE VOCÊ -->
+            <section id="fixed-elements-section" class="card">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Coisas que Fazem Parte de Você</h2>
+                <div id="fixed-elements-container" class="space-y-3">
+                    <!-- Cards de elementos fixos serão injetados aqui -->
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <input type="text" id="new-fixed-element-input" placeholder="adicione um elemento constante. ex: minha capacidade de amar incondicionalmente." class="p-2 border rounded-lg w-full focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora">
+                    <button onclick="addFixedElement()" class="px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition flex-shrink-0">
+                        adicionar
+                    </button>
+                </div>
+            </section>
+
+            <!-- 2B. NOVA SEÇÃO: COISAS QUE VOCÊ GOSTA -->
+            <section id="likes-section" class="card">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Coisas de que você Gosta</h2>
+                <div id="likes-container" class="space-y-3">
+                    <!-- Cards de gostos serão injetados aqui -->
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <input type="text" id="new-like-input" placeholder="adicione um gosto ou interesse. ex: cheiro de chuva." class="p-2 border rounded-lg w-full focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora">
+                    <button onclick="addLikeElement()" class="px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition flex-shrink-0">
+                        adicionar
+                    </button>
+                </div>
+            </section>
+            
+            <!-- 2C. NOVA SEÇÃO: COISAS QUE VOCÊ NÃO GOSTA (Dislikes) -->
+            <section id="dislikes-section" class="card">
+                <!-- Título alterado para text-gray-700 -->
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Coisas de que Você Não Gosta</h2>
+                <p class="text-xs text-gray-500 mb-4 italic p-2 rounded-lg bg-red-900/10 border border-red-900/30">
+                    ⭐ Dica: Evite focar em defeitos ou coisas que você não gosta em si mesmo(a). em vez disso, foque no que te desagrada de forma geral para reforçar seus limites.  
+                </p>
+                <div id="dislikes-container" class="space-y-3">
+                    <!-- Cards de aversões serão injetados aqui -->
+                </div>
+                <div class="mt-4 flex gap-2">
+                    <input type="text" id="new-dislike-input" placeholder="adicione algo de que você não gosta. ex: a cor laranja." class="p-2 border rounded-lg w-full focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora">
+                    <button onclick="addDislikeElement()" class="px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition flex-shrink-0">
+                        adicionar
+                    </button>
+                </div>
+            </section>
+
+            <!-- 3. SEÇÃO: DIÁRIO DE CONTINUIDADE -->
+            <section id="journal-section" class="card">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Diário de Continuidade</h2>
+                
+                <div class="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+                    <label for="journal-entry" class="block text-sm font-medium mb-2 italic text-gray-600">
+                        Hoje me senti desconectado(a). O que continua sendo verdade sobre mim?
+                    </label>
+                    <textarea id="journal-entry" rows="3" class="p-2 border rounded-lg w-full resize-none focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora"></textarea>
+                    <button onclick="addJournalEntry()" class="mt-3 px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition">
+                        registrar constância
+                    </button>
+                </div>
+                
+                <div id="journal-entries-container" class="space-y-4 max-h-96 overflow-y-auto p-2">
+                    <!-- Entradas do diário serão injetadas aqui -->
+                </div>
+            </section>
+            
+            <!-- 4. NOVA SEÇÃO: ÂNCORA DO AMOR -->
+            <section id="love-anchor-section" class="card">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-pink-400">Âncora do Amor</h2>
+                <p class="text-sm text-gray-500 mb-4">Frases de afirmação e carinho ditas por ou para pessoas amadas.</p>
+                
+                <div class="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+                    <!-- ALTERAÇÃO AQUI: Mudando para grid de 4 colunas em desktop para acomodar a data -->
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <div class="col-span-1 sm:col-span-2">
+                            <label for="love-quote-input" class="block text-sm font-medium mb-1 italic text-gray-600">Frase:</label>
+                            <textarea id="love-quote-input" rows="2" class="p-2 border rounded-lg w-full  focus:ring-1 focus:ring-pink-400 focus:border-pink-400" placeholder="ex: 'sou grata(o) por ter você em minha vida.'"></textarea>
+                        </div>
+                        
+                        <!-- NOVO CAMPO DE DATA -->
+                        <div class="col-span-1">
+                            <label for="love-date-input" class="block text-sm font-medium mb-1 italic text-gray-600">quando foi dita:</label>
+                            <!-- Removendo p-2 do HTML para confiar no CSS global e no fix, e adicionando text-base (era text-sm) para ser mais legível -->
+                            <input type="date" id="love-date-input" class="border rounded-lg w-full text-base">
+                        </div>
+                        
+                        <!-- CAMPO DE FONTE -->
+                        <div class="col-span-1">
+                            <label for="love-source-input" class="block text-sm font-medium mb-1 italic text-gray-600">Quem disse:</label>
+                            <input type="text" id="love-source-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: mãe, amiga, eu">
+                        </div>
+                    </div>
+                    <button onclick="addLoveQuote()" class="mt-3 px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition bg-pink-500 hover:bg-pink-600">
+                        registrar amor
+                    </button>
+                </div>
+                
+                <div id="love-quotes-container" class="space-y-4 max-h-96 overflow-y-auto p-2">
+                    <!-- Frases de amor serão injetadas aqui -->
+                </div>
+            </section>
+            
+            <!-- SEÇÃO DE BACKUP / TRANSFERÊNCIA -->
+            <section id="backup-section" class="card bg-gray-800 border border-gray-700">
+                <h2 class="text-lg font-semibold mb-4 text-gray-400 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Backup e Transferência
+                </h2>
+                <p class="text-xs text-gray-500 mb-4">Como não usamos servidor, seus dados ficam apenas neste computador. Para usar em outro lugar, baixe o backup e restaure lá.</p>
+                
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button onclick="exportData()" class="flex-1 px-4 py-3 bg-blue-600/20 border border-blue-500/50 text-blue-200 font-medium rounded-xl hover:bg-blue-600/30 transition text-sm flex items-center justify-center gap-2">
+                        ⬇ baixar meus dados (backup)
+                    </button>
+                    
+                    <button onclick="triggerImport()" class="flex-1 px-4 py-3 bg-emerald-600/20 border border-emerald-500/50 text-emerald-200 font-medium rounded-xl hover:bg-emerald-600/30 transition text-sm flex items-center justify-center gap-2">
+                        ⬆ restaurar dados (upload)
+                    </button>
+                    <!-- Input file invisível -->
+                    <input type="file" id="import-file" accept=".json" class="hidden" onchange="handleFileImport(this)">
+                </div>
+                <p id="import-status" class="text-xs text-center mt-2 h-4"></p>
+            </section>
+
+            <footer class="text-center text-sm py-6 text-gray-500">
+                © 2025 lumina — Conteúdo licenciado sob <b>MIT License</b>.
+
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // --- SISTEMA DE ARMAZENAMENTO LOCAL (SEM FIREBASE) ---
+        
+        // Chaves para o LocalStorage
+        const KEYS = {
+            USERS: 'lumina_users_v1', // Onde guardamos login/senha
+            SESSION: 'lumina_session_user', // Quem está logado agora
+            DATA_PREFIX: 'lumina_data_' // Prefixo para os dados de cada usuário
+        };
+
+        // DADOS PADRÃO (ZERADOS/LIMPOS)
+        const defaultData = {
+            identity_sentence: "",
+            qualities: [],
+            values: [],
+            markers: [],
+            fixed_elements: [],
+            likes: [],
+            dislikes: [], // NOVO CAMPO ADICIONADO
+            journal: [],
+            love_quotes: []
+        };
+
+        // Estado Global
+        let currentUser = null;
+
+        
+        window.userData = JSON.parse(JSON.stringify(defaultData)); // Cópia limpa
+
+        // --- FUNÇÕES DE BACKUP (EXPORTAR / IMPORTAR) ---
+        
+        window.exportData = function() {
+            if(!currentUser) return;
+            const dataStr = JSON.stringify(window.userData, null, 2); // Identado para ficar bonito se abrir
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lumina_backup_${currentUser}_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        window.triggerImport = function() {
+            document.getElementById('import-file').click();
+        }
+
+        window.handleFileImport = function(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            const statusEl = document.getElementById('import-status');
+            
+            statusEl.textContent = "Lendo arquivo...";
+            statusEl.className = "text-xs text-center mt-2 h-4 text-amber-400";
+
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Validação básica para ver se é um arquivo do Lumina
+                    if (importedData.qualities && Array.isArray(importedData.qualities)) {
+                        // Sucesso! Atualiza a memória
+                        window.userData = { ...defaultData, ...importedData };
+                        // Salva no disco local imediatamente
+                        saveData(); 
+                        // Atualiza a tela
+                        renderAll();
+                        populateInlineInputs();
+                        
+                        statusEl.textContent = "Dados restaurados com sucesso!";
+                        statusEl.className = "text-xs text-center mt-2 h-4 text-green-400";
+                        
+                        // Limpa a mensagem depois de 3s
+                        setTimeout(() => statusEl.textContent = "", 3000);
+                    } else {
+                        throw new Error("Formato inválido");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    statusEl.textContent = "Erro: O arquivo não parece ser um backup válido do Lumina.";
+                    statusEl.className = "text-xs text-center mt-2 h-4 text-red-400";
+                }
+                // Limpa o input para permitir re-upload do mesmo arquivo se precisar
+                input.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // --- FUNÇÕES DE AUTENTICAÇÃO LOCAL ---
+
+        function getUsersDB() {
+            const users = localStorage.getItem(KEYS.USERS);
+            return users ? JSON.parse(users) : {};
+        }
+
+        function saveUsersDB(users) {
+            localStorage.setItem(KEYS.USERS, JSON.stringify(users));
+        }
+
+        window.handleLocalRegister = function() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const errorDiv = document.getElementById('auth-error');
+
+            if(!email || !password) {
+                showError("Preencha e-mail e senha.");
+                return;
+            }
+            if(password.length < 4) {
+                showError("Senha muito curta.");
+                return;
+            }
+
+            const users = getUsersDB();
+            if(users[email]) {
+                showError("Usuário já existe. Tente entrar.");
+                return;
+            }
+
+            // Cria usuário
+            users[email] = { password: password, createdAt: new Date().toISOString() };
+            saveUsersDB(users);
+
+            // Loga automaticamente
+            loginUser(email);
+        };
+
+        window.handleLocalLogin = function() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+
+            if(!email || !password) {
+                showError("Preencha e-mail e senha.");
+                return;
+            }
+
+            const users = getUsersDB();
+            if(users[email] && users[email].password === password) {
+                loginUser(email);
+            } else {
+                showError("E-mail ou senha incorretos.");
+            }
+        };
+
+        window.handleLocalLogout = function() {
+            localStorage.removeItem(KEYS.SESSION);
+            currentUser = null;
+            
+            // Limpa UI
+            document.getElementById('auth-email').value = '';
+            document.getElementById('auth-password').value = '';
+            document.getElementById('app-content').classList.add('hidden');
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('welcome-explanation').classList.remove('hidden'); // MOSTRAR O BLOCO CONSOLIDADO
+        };
+
+        function loginUser(email) {
+            currentUser = email;
+            localStorage.setItem(KEYS.SESSION, email);
+            
+            document.getElementById('auth-error').classList.add('hidden');
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('welcome-explanation').classList.add('hidden'); // ESCONDER O BLOCO CONSOLIDADO
+            document.getElementById('app-content').classList.remove('hidden');
+            document.getElementById('user-id-display').textContent = `Usuário: ${email}`;
+            
+            loadData();
+        }
+
+        function showError(msg) {
+            const div = document.getElementById('auth-error');
+            div.textContent = msg;
+            div.classList.remove('hidden');
+        }
+
+        // --- SISTEMA DE DADOS ---
+
+        function loadData() {
+            if(!currentUser) return;
+            
+            const key = KEYS.DATA_PREFIX + currentUser;
+            const saved = localStorage.getItem(key);
+            
+            if(saved) {
+                // Merge com cuidado para não perder campos novos se a estrutura mudar
+                window.userData = { ...defaultData, ...JSON.parse(saved) };
+            } else {
+                window.userData = JSON.parse(JSON.stringify(defaultData));
+                saveData(); // Salva o inicial
+            }
+
+            renderAll();
+            populateInlineInputs();
+        }
+
+        const saveStatusEl = document.getElementById('save-status-indicator');
+
+        function saveData() {
+            if(!currentUser) return;
+
+            try {
+                const key = KEYS.DATA_PREFIX + currentUser;
+                localStorage.setItem(key, JSON.stringify(window.userData));
+                
+                // Feedback Visual
+                if (saveStatusEl) {
+                    saveStatusEl.classList.remove('opacity-0');
+                    saveStatusEl.innerHTML = '<span class="text-green-400">Salvo!</span>';
+                    setTimeout(() => {
+                        saveStatusEl.classList.add('opacity-0');
+                    }, 1500);
+                }
+            } catch (e) {
+                console.error("Erro ao salvar localmente", e);
+                if (saveStatusEl) {
+                    saveStatusEl.classList.remove('opacity-0');
+                    saveStatusEl.innerHTML = '<span class="text-red-400">Erro (Espaço cheio?)</span>';
+                }
+            }
+        }
+
+        // Debounce para não salvar a cada letra
+        function debounce(func, timeout = 500) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => { func.apply(this, args); }, timeout);
+            };
+        }
+        const debouncedSave = debounce(saveData, 1000);
+        window.saveDataToFirestore = saveData; // Mantendo o nome antigo para compatibilidade do botão manual
+
+        // --- RENDERIZAÇÃO DA UI (Mesma Lógica) ---
+
+        const cleanAndSplit = (value, limit = Infinity) => {
+            return (value || "").split(',').map(s => s.trim()).filter(s => s.length > 0).slice(0, limit);
+        };
+
+        function renderAll() {
+            renderList('qualities-list', window.userData.qualities);
+            renderList('values-list', window.userData.values);
+            renderMarkers();
+            renderFixedElements();
+            renderLikes();
+            renderDislikes(); // RENDERIZAÇÃO DO NOVO CAMPO
+            renderJournal();
+            renderLoveQuotes();
+        }
+
+        function renderList(id, items) {
+            const ul = document.getElementById(id);
+            const safeItems = Array.isArray(items) ? items : [];
+            ul.innerHTML = safeItems.map(item => `<li class="text-gray-700">${item.trim()}</li>`).join('');
+        }
+
+        function renderMarkers() {
+            const container = document.getElementById('markers-container');
+            const items = Array.isArray(window.userData.markers) ? window.userData.markers : [];
+            container.innerHTML = items.map(marker => `<span class="marker-tag text-sm">${marker.trim()}</span>`).join('');
+        }
+
+        function populateInlineInputs() {
+            const i1 = document.getElementById('identity-sentence-input'); if(i1) i1.value = window.userData.identity_sentence || '';
+            const i2 = document.getElementById('qualities-input'); if(i2) i2.value = (window.userData.qualities || []).join(', ');
+            const i3 = document.getElementById('values-input'); if(i3) i3.value = (window.userData.values || []).join(', ');
+            const i4 = document.getElementById('markers-input'); if(i4) i4.value = (window.userData.markers || []).join(', ');
+        }
+
+        function setupInlineInputs() {
+            const setup = (id, field, isArray, limit) => {
+                const el = document.getElementById(id);
+                if(!el) return;
+                el.addEventListener('input', (e) => {
+                    if(isArray) {
+                        window.userData[field] = cleanAndSplit(e.target.value, limit);
+                        // Re-render immediately for preview
+                        if(field === 'qualities' || field === 'values') renderList(id.replace('input', 'list'), window.userData[field]);
+                        if(field === 'markers') renderMarkers();
+                    } else {
+                        window.userData[field] = e.target.value;
+                    }
+                    
+                    // Save Logic
+                    const isComma = (e.data === ',') || (e.target.value.trim().endsWith(','));
+                    if (isComma && isArray) saveData(); else debouncedSave();
+                });
+            };
+
+            setup('identity-sentence-input', 'identity_sentence', false);
+            setup('qualities-input', 'qualities', true, 3);
+            setup('values-input', 'values', true, 3);
+            setup('markers-input', 'markers', true);
+        }
+
+        // --- ADD/REMOVE FUNCTIONS ---
+
+        window.addFixedElement = function() {
+            const input = document.getElementById('new-fixed-element-input');
+            const val = input.value.trim();
+            if(val) {
+                if(!Array.isArray(window.userData.fixed_elements)) window.userData.fixed_elements = [];
+                window.userData.fixed_elements.push(val);
+                input.value = '';
+                saveData(); renderFixedElements();
+            }
+        }
+        window.removeFixedElement = function(i) {
+            window.userData.fixed_elements.splice(i, 1);
+            saveData(); renderFixedElements();
+        }
+        function renderFixedElements() {
+            const container = document.getElementById('fixed-elements-container');
+            container.innerHTML = (window.userData.fixed_elements || []).map((item, i) => `
+                <div class="card p-3 flex justify-between items-center bg-cor-secundaria/50 text-sm">
+                    <p class="font-medium text-gray-800">${item}</p>
+                    <button onclick="removeFixedElement(${i})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        window.addLikeElement = function() {
+            const input = document.getElementById('new-like-input');
+            const val = input.value.trim();
+            if(val) {
+                if(!Array.isArray(window.userData.likes)) window.userData.likes = [];
+                window.userData.likes.push(val);
+                input.value = '';
+                saveData(); renderLikes();
+            }
+        }
+        window.removeLikeElement = function(i) {
+            window.userData.likes.splice(i, 1);
+            saveData(); renderLikes();
+        }
+        function renderLikes() {
+            const container = document.getElementById('likes-container');
+            container.innerHTML = (window.userData.likes || []).map((item, i) => `
+                <div class="card p-3 flex justify-between items-center bg-cor-secundaria/50 text-sm">
+                    <p class="font-medium text-gray-800">${item}</p>
+                    <button onclick="removeLikeElement(${i})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        // --- NOVO BLOCO PARA DISLIKES ---
+        window.addDislikeElement = function() {
+            const input = document.getElementById('new-dislike-input');
+            const val = input.value.trim();
+            if(val) {
+                if(!Array.isArray(window.userData.dislikes)) window.userData.dislikes = [];
+                window.userData.dislikes.push(val);
+                input.value = '';
+                saveData(); renderDislikes();
+            }
+        }
+        window.removeDislikeElement = function(i) {
+            window.userData.dislikes.splice(i, 1);
+            saveData(); renderDislikes();
+        }
+        function renderDislikes() {
+            const container = document.getElementById('dislikes-container');
+            // Alterado: Fundo para `bg-cor-secundaria/50` e borda para `border-red-500`
+            container.innerHTML = (window.userData.dislikes || []).map((item, i) => `
+                <div class="card p-3 flex justify-between items-center bg-cor-secundaria/50 text-sm border-l-4 border-red-500">
+                    <p class="font-medium text-gray-800">${item}</p>
+                    <button onclick="removeDislikeElement(${i})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
+                </div>
+            `).join('');
+        }
+        // --- FIM NOVO BLOCO ---
+
+
+        window.addJournalEntry = function() {
+            const txt = document.getElementById('journal-entry');
+            const val = txt.value.trim();
+            if(val) {
+                if(!Array.isArray(window.userData.journal)) window.userData.journal = [];
+                window.userData.journal.push({ date: new Date().toISOString().split('T')[0], entry: val });
+                txt.value = '';
+                saveData(); renderJournal();
+            }
+        }
+        window.removeJournalEntry = function(originalIndex) {
+             const realIndex = window.userData.journal.length - 1 - originalIndex; 
+             window.userData.journal.splice(originalIndex, 1);
+             saveData(); renderJournal();
+        }
+        function renderJournal() {
+            const container = document.getElementById('journal-entries-container');
+            const items = window.userData.journal || [];
+            if(items.length === 0) { container.innerHTML = '<p class="text-center italic text-gray-500">Nenhum registro.</p>'; return; }
+            
+            const reversed = [...items].reverse();
+            container.innerHTML = reversed.map((entry, i) => {
+                const realIndex = items.length - 1 - i;
+                const date = new Date(entry.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+                return `
+                    <div class="card p-4 border-l-4 border-cor-ancora text-sm flex justify-between items-start">
+                        <div><p class="text-xs text-gray-500 mb-1">${date}</p><p class="text-base text-gray-700">${entry.entry}</p></div>
+                        <button onclick="removeJournalEntry(${realIndex})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.addLoveQuote = function() {
+            const qIn = document.getElementById('love-quote-input');
+            const sIn = document.getElementById('love-source-input');
+            // NOVO: Captura o campo de data
+            const dIn = document.getElementById('love-date-input'); 
+
+            const q = qIn.value.trim();
+            const s = sIn.value.trim();
+            // Pega o valor da data ou usa a data de hoje como fallback
+            const d = dIn.value.trim() || new Date().toISOString().split('T')[0]; 
+            
+            if(q) {
+                if(!Array.isArray(window.userData.love_quotes)) window.userData.love_quotes = [];
+                // ADICIONA A DATA (d) AO OBJETO DE CITAÇÃO
+                window.userData.love_quotes.push({ quote: q, source: s || "Você", date: d });
+                
+                qIn.value = ''; 
+                sIn.value = '';
+                dIn.value = ''; // Limpa o campo de data após o registro
+                
+                saveData(); 
+                renderLoveQuotes();
+            }
+        }
+        window.removeLoveQuote = function(originalIndex) {
+            window.userData.love_quotes.splice(originalIndex, 1);
+            saveData(); renderLoveQuotes();
+        }
+        function renderLoveQuotes() {
+            const container = document.getElementById('love-quotes-container');
+            const items = window.userData.love_quotes || [];
+            if(items.length === 0) { container.innerHTML = '<p class="text-center italic text-gray-500">Nenhuma frase.</p>'; return; }
+            
+            const reversed = [...items].reverse();
+            container.innerHTML = reversed.map((item, i) => {
+                const realIndex = items.length - 1 - i;
+                // Formata a data para exibição (apenas dia e mês para ser conciso)
+                const date = new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+                return `
+                    <div class="card p-4 love-quote text-sm flex justify-between items-start">
+                        <div>
+                            <p class="text-lg italic text-gray-700 leading-snug">"${item.quote}"</p>
+                            <!-- EXIBE A DATA AO LADO DA FONTE -->
+                            <p class="text-xs text-gray-500 mt-1">- ${item.source} <span class="ml-2">(${date})</span></p>
+                        </div>
+                        <button onclick="removeLoveQuote(${realIndex})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- INICIALIZAÇÃO ---
+
+        function initApp() {
+            // Adiciona o ajuste de estilo para o input[type="date"] no tema escuro
+            const style = document.createElement('style');
+            style.textContent = `
+                input[type="date"]::-webkit-calendar-picker-indicator {
+                    filter: invert(0.8) !important;
+                }
+            `;
+            document.head.appendChild(style);
+
+
+            setupInlineInputs();
+            
+            // Tenta login automático (Sessão persistente simples)
+            const sessionUser = localStorage.getItem(KEYS.SESSION);
+            if(sessionUser) {
+                loginUser(sessionUser);
+            } else {
+                document.getElementById('auth-section').classList.remove('hidden');
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+
+    </script>
+</body>
+</html>
