@@ -20,7 +20,9 @@ Lumina é uma aplicação web/mobile construída em HTML + Tailwind CDN voltada 
 5. Registre entradas no diário de continuidade sempre que sentir desconexão;
 6. Adicione registros pessoais sempre que quiser;
 7. Adicione frases à "Âncora do amor" para ler diariamente.
-8. Preencha o mood musical e ouça as músicas debaixo para cima para transitar de emoções mais baixas para mais altas.
+8. Preencha o mood musical e ouça as músicas debaixo para cima para transitar de emoções mais baixas para mais altas;
+9. Salve o backup criptografado para guardar seus dados e acessar de qualquer dispositivo.
+
 
 
 
