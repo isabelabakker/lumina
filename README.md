@@ -13,7 +13,7 @@ Lumina é uma aplicação web/mobile construída em HTML + Tailwind CDN voltada 
 - Mood musical: sinta através da música para transitar gradualmente entre suas emoções, evitando oscilações bruscas.
 
 ## Como usar
-1. Baixe "lumina.html" no seu computador pessoal e abra o arquivo em qualquer navegador;
+1. Baixe "lumina.html" no seu computador pessoal e abra o arquivo em qualquer navegador, ou acesse o site https://lumina.lat/;
 2. Preencha as caixas na própria âncora (as listas se atualizam automaticamente);
 3. Use o bloco “coisas que fazem parte de você” para adicionar itens fixos;
 4. Use os blocos “coisas de que você gosta” e "coisas de que você não gosta" para adicionar itens mais fluidos;
@@ -22,6 +22,7 @@ Lumina é uma aplicação web/mobile construída em HTML + Tailwind CDN voltada 
 7. Adicione frases à "Âncora do amor" para ler diariamente.
 8. Preencha o mood musical e ouça as músicas debaixo para cima para transitar de emoções mais baixas para mais altas;
 9. Salve o backup criptografado para guardar seus dados e acessar de qualquer dispositivo.
+
 
 
 
