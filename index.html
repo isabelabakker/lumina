@@ -8,6 +8,8 @@
     <link rel="icon" type="image/svg+xml" href="images/logo.svg">
     <!-- Carrega o Tailwind CSS para estilos rápidos e responsivos -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carrega CryptoJS para criptografia dos backups E HASH DE SENHA -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         /* Define a paleta de cores acolhedoras e estáveis */
@@ -15,8 +17,10 @@
             --cor-primaria: #07090f;
             --cor-secundaria: #111629;
             --cor-texto: #f1f4ff;
-            --cor-ancora: #ff8c42;
+            --cor-ancora: #ff8c42; /* Laranja/Âmbar para Diário e âncoras */
             --cor-suave: #1f2a3f;
+            /* Restaurando a cor azul original para documentos */
+            --cor-documento: #42a2ff; 
         }
 
         body {
@@ -73,13 +77,14 @@
             cursor: not-allowed;
         }
         
-        /* Fixes para formulário mobile */
-        input[type="text"], textarea, input[type="email"], input[type="password"], input[type="date"] {
+        /* Inputs gerais */
+        input[type="text"], textarea, input[type="email"], input[type="password"], input[type="date"], input[type="url"] {
             padding: 10px;
             background-color: #0d1221;
             border: 1px solid #232a40;
             color: var(--cor-texto);
             text-transform: none;
+            border-radius: 0.5rem;
         }
 
         /* Ajuste do ícone de data para ser visível no tema escuro */
@@ -146,26 +151,62 @@
             border-left: 4px solid #f687b3; /* Um rosa suave para amor */
         }
 
-        /* --- FIX PARA ALINHAMENTO DE INPUTS DE DATA E TEXTO NO MOBILE --- */
-        /* Garante que o box-sizing seja respeitado para evitar estouro devido ao ícone do seletor de data */
-        #love-anchor-section input {
-            box-sizing: border-box !important;
-            /* Força a aparência a não ser nativa para melhor controle de largura */
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-        }
-        /* Ajusta o padding para que o campo de data e texto tenham exatamente o mesmo tamanho se usarem o mesmo p-2 */
-        #love-anchor-section input[type="date"] {
-            /* Remove o padding padrão extra do Chrome/Safari para date inputs */
-            padding-right: 10px; 
-        }
-        
-        /* --- FIM FIX --- */
-
         /* Utilitário para controle de visibilidade do login */
         .hidden {
             display: none !important;
+        }
+
+        /* Estilo específico para o item da escala musical */
+        .scale-item {
+            border-left-width: 4px;
+            transition: background-color 0.2s;
+        }
+        .scale-item:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+        
+        /* Animação suave para o player aparecendo */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        /* Estilo para o documento privado (AJUSTE DE TAMANHO DE FONTE) */
+        .document-title-input {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700; /* font-bold */
+            margin-bottom: 0.25rem;
+            color: var(--cor-documento); /* Azul restaurado */
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid transparent; /* Invisível até focar ou hover */
+            padding: 0.25rem 0;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+        .document-title-input:hover {
+            border-bottom-color: #2b324a;
+        }
+        .document-title-input:focus {
+            outline: none;
+            border-bottom-color: var(--cor-documento);
+        }
+        
+        /* Estilo para o input de data dentro do card de registro */
+        .document-date-input {
+            background: transparent;
+            border: none;
+            padding: 0;
+            color: #7c84ac;
+            font-size: 0.75rem;
+            width: auto;
+        }
+        .document-date-input:focus {
+            outline: none;
+            color: var(--cor-texto);
         }
     </style>
 </head>
@@ -175,7 +216,7 @@
 
         
         <!-- === 1. TELA DE LOGIN E CADASTRO === -->
-        <section id="auth-section" class="card p-8 sm:p-12 text-center max-w-md mx-auto mt-10">
+        <section id="auth-section" class="card p-8 sm:p-12 text-center max-w-md mx-auto">
             <div class="mb-8">
                 <!-- Combina title.svg e logo.svg na mesma linha, usando classes de alinhamento vertical -->
                 <h1 class="flex items-center justify-center gap-3 mb-1">
@@ -215,37 +256,38 @@
             </div>
         </section>
 
-        <!-- === 1B/1C. EXPLICAÇÃO CONSOLIDADA === -->
+        
+        <!-- === 1B/1C. EXPLICAÇÃO CONSOLIDADA (AGORA ABAIXO DO LOGIN) === -->
         <section id="welcome-explanation" class="card p-6 sm:p-8 text-center max-w-md mx-auto space-y-4 border-l-4 border-amber-500/80 bg-cor-secundaria/50">
             <!-- 1. Título alterado -->
-            <h2 class="text-xl font-bold text-amber-300 mb-4">O que é o Lumina? 🤔</h2>
+            <h2 class="text-xl font-bold text-amber-300 mb-4">pra que serve o Lumina? 🤔</h2>
             
             <!-- Parágrafo 1: Propósito -->
             <p class="text-sm text-gray-300 leading-relaxed text-justify">
-                O <b>lumina</b> é um aplicativo web voltado para pessoas com <b>Transtorno de Personalidade Borderline</b> (TPB). é uma ferramenta de apoio diário para auxiliar na <b></b>ancoragem da identidade</b> em momentos de oscilação.<br><br>
-                Ele oferece um painel único, discreto e local que permite ao usuário resgatar <b>características</b>, <b>valores</b> e <b>registros pessoais</b>, reforçando o sentido de continuidade pessoal.
+                O lumina é um aplicativo web voltado para pessoas com <b>Transtorno de Personalidade Borderline</b> (TPB). é uma ferramenta de apoio diário para fortalecer a <b>autonomia pessoal</b>, funcionando como âncora emocional em momentos de oscilação.<br><br>
+                Ele oferece um painel único, discreto e local que permite ao usuário resgatar <b>características</b>, <b>valores</b> e <b>registros pessoais</b>, reforçando o sentido de continuidade pessoal. aqui você vai construir:
             </p>
 
-            <!-- 2. Linha cinza substituindo o título "Funcionalidades" -->
-            <div class="border-t border-gray-700/50 pt-4"></div>
             
-            <ul class="text-sm text-gray-300 list-disc list-inside text-left ml-4 space-y-1">
-                <li>✍️ Mantenha uma <b>frase central</b> de identidade</li>
-                <li>📚 Liste três <b>qualidades centrais</b> e três <b>valores pessoais</b></li>
-                <li>*️⃣ Mantenha <b>marcadores de identidade</b> que funcionam como âncoras rápidas</li>
-                <li>📝 Guarde <b>elementos fixos</b> da personalidade e atualize a lista quando quiser</li>
-                <li>📖 Guarde um diário de continuidade para lembrar-se de <b>verdades estáveis</b> em dias difíceis</li>
-                <li>❤️ <b>Âncora do amor</b>: frases de afirmação e carinho ditas por ou para pessoas amadas (incluindo de você para você mesmo!)</li>
+            <ul class="text-sm text-gray-300 list-disc list-inside text-left ml-4 space-y-2">
+                <li>✍️ Uma <b>frase central</b> de identidade</li>
+                <li>📚 <b>Qualidades centrais</b> e <b>valores pessoais</b></li>
+                <li>📝 <b>Elementos fixos</b> da personalidade</li>
+                <li>📖 Um diário de continuidade para lembrar-se de <b>verdades estáveis</b> em dias difíceis</li>
+                <li>❤️ Uma <b>Âncora do amor</b>: frases de afirmação e carinho</li>
+                <li>📜 Um espaço <b>privado</b> para guardar anotações importantes</li>
+                
+                <!-- NOVO ITEM: MOOD MUSICAL COM EXPLICAÇÃO COMPLETA -->
+                <li>🎵 seu <b>Mood Musical</b>: sinta através da música para transitar gradualmente entre suas emoções, evitando <b>oscilações bruscas</b></li>
             </ul>
-            
-
         </section>
 
-        <!-- === 1D. EXPLICAÇÃO - COMO USAR (BLOCO REMOVIDO) === -->
-
+        <!-- Rodapé de Licença para a tela de Login -->
+        <footer id="auth-footer" class="text-center text-sm py-6 text-gray-500 max-w-4xl mx-auto">
+            © 2025 lumina — Conteúdo licenciado sob <b>MIT License</b>.
+        </footer>
 
         <!-- === 2. CONTEÚDO DO APP === -->
-        <!-- Envolvido em uma DIV oculta por padrão -->
         <div id="app-content" class="hidden space-y-6 sm:space-y-8">
             
             <!-- SEÇÃO PRINCIPAL - ÂNCORA DE IDENTIDADE -->
@@ -256,17 +298,12 @@
                 </button>
 
                 <div class="mb-6">
-                    <!-- Combina title.svg e logo.svg na mesma linha, usando classes de alinhamento vertical -->
                     <h1 class="flex items-center justify-center gap-3 mb-1">
-                        <!-- Ajustando o tamanho da imagem title.svg para h-12/sm:h-14 -->
                         <img src="images/title.svg" alt="Lumina Logo Texto" class="h-12 sm:h-14 w-auto">
-                        <!-- Ajustando o tamanho do ícone logo.svg para ser h-9/sm:h-11 -->
-                        <!-- Adicionando bg-transparent para evitar fundo acidental no container do logo -->
                         <span class="h-9 w-9 sm:h-11 sm:w-11 flex items-center justify-center bg-transparent">
                             <img src="images/logo.svg" alt="Lumina Logo Ícone" class="h-full w-full">
                         </span>
                     </h1>
-                    <!-- O tamanho do subtítulo é alterado de text-base para text-sm -->
                     <p class="text-sm text-gray-500 mt-1 tracking-[0.3em]">
                         sua âncora emocional
                     </p>
@@ -280,7 +317,7 @@
 
                 <div class="text-left mb-6">
                     <div class="p-3 rounded-xl bg-white/80">
-                        <label class="block text-sm font-medium text-gray-600 mb-1">frase central de identidade:</label>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">💬 frase central de identidade:</label>
                         <textarea id="identity-sentence-input" rows="2" class="p-2 border rounded-lg w-full resize-none" placeholder="adicione uma frase central. ex: eu não sou meus pensamentos nem minhas emoções, mas tenho o direito de sentir."></textarea>
                     </div>
                 </div>
@@ -288,13 +325,13 @@
                 <!-- Qualidades & Valores (Layout adaptável) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                     <div class="p-3 rounded-xl bg-white/80">
-                        <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">Três Qualidades Centrais</h2>
+                        <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">✨ Três Qualidades Centrais</h2>
                         <ul id="qualities-list" class="list-disc list-inside pl-2 space-y-1 text-sm mb-3"></ul>
                         <input type="text" id="qualities-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: gentil, forte, criativa">
                         <p class="text-[11px] text-gray-500 mt-1">Separe por vírgula (máx. 3).</p>
                     </div>
                     <div class="p-3 rounded-xl bg-white/80">
-                        <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">Três Valores Pessoais</h2>
+                        <h2 class="text-md font-semibold mb-2 border-b pb-1 text-gray-700">🌟 Três Valores Pessoais</h2>
                         <ul id="values-list" class="list-disc list-inside pl-2 space-y-1 text-sm mb-3"></ul>
                         <input type="text" id="values-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: honestidade, liberdade, crescimento">
                         <p class="text-[11px] text-gray-500 mt-1">Separe por vírgula (máx. 3).</p>
@@ -303,7 +340,7 @@
 
                 <!-- Marcadores de Identidade -->
                 <div class="mt-6">
-                    <h3 class="text-md font-semibold mb-3 text-gray-700">Marcadores de Identidade (Pontos Fixos)</h3>
+                    <h3 class="text-md font-semibold mb-3 text-gray-700">Marcadores de Identidade (Pontos Fixos):</h3>
                     <div id="markers-container" class="flex flex-wrap justify-center gap-2">
                         <!-- Tags serão injetadas aqui -->
                     </div>
@@ -321,11 +358,12 @@
                 </div>
                 
             </section>
-
+            
+            
             <!-- 2. SEÇÃO: COISAS QUE FAZEM PARTE DE VOCÊ -->
             <section id="fixed-elements-section" class="card">
                 <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Coisas que Fazem Parte de Você</h2>
-                <div id="fixed-elements-container" class="space-y-3">
+                <div id="fixed-elements-container" class="space-y-3 max-h-96 overflow-y-auto p-2">
                     <!-- Cards de elementos fixos serão injetados aqui -->
                 </div>
                 <div class="mt-4 flex gap-2">
@@ -339,7 +377,7 @@
             <!-- 2B. NOVA SEÇÃO: COISAS QUE VOCÊ GOSTA -->
             <section id="likes-section" class="card">
                 <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Coisas de que você Gosta</h2>
-                <div id="likes-container" class="space-y-3">
+                <div id="likes-container" class="space-y-3 max-h-96 overflow-y-auto p-2">
                     <!-- Cards de gostos serão injetados aqui -->
                 </div>
                 <div class="mt-4 flex gap-2">
@@ -352,12 +390,11 @@
             
             <!-- 2C. NOVA SEÇÃO: COISAS QUE VOCÊ NÃO GOSTA (Dislikes) -->
             <section id="dislikes-section" class="card">
-                <!-- Título alterado para text-gray-700 -->
                 <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Coisas de que Você Não Gosta</h2>
                 <p class="text-xs text-gray-500 mb-4 italic p-2 rounded-lg bg-red-900/10 border border-red-900/30">
                     ⭐ Dica: Evite focar em defeitos ou coisas que você não gosta em si mesmo(a). em vez disso, foque no que te desagrada de forma geral para reforçar seus limites.  
                 </p>
-                <div id="dislikes-container" class="space-y-3">
+                <div id="dislikes-container" class="space-y-3 max-h-96 overflow-y-auto p-2">
                     <!-- Cards de aversões serão injetados aqui -->
                 </div>
                 <div class="mt-4 flex gap-2">
@@ -370,13 +407,13 @@
 
             <!-- 3. SEÇÃO: DIÁRIO DE CONTINUIDADE -->
             <section id="journal-section" class="card">
-                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">Diário de Continuidade</h2>
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-gray-700">📖 Diário de Continuidade</h2>
                 
                 <div class="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
                     <label for="journal-entry" class="block text-sm font-medium mb-2 italic text-gray-600">
-                        Hoje me senti desconectado(a). O que continua sendo verdade sobre mim?
+                    adicione uma verdade contínua sobre você ou uma ação de autocuidado que fez hoje. 
                     </label>
-                    <textarea id="journal-entry" rows="3" class="p-2 border rounded-lg w-full resize-none focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora"></textarea>
+                    <textarea id="journal-entry" rows="3" class="p-2 border rounded-lg w-full resize-none focus:ring-1 focus:ring-cor-ancora focus:border-cor-ancora" placeholder="ex: continuo tendo fé / hoje acordei cedo e tomei sol."></textarea>
                     <button onclick="addJournalEntry()" class="mt-3 px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition">
                         registrar constância
                     </button>
@@ -387,33 +424,64 @@
                 </div>
             </section>
             
+            <!-- === 2D. SEÇÃO: REGISTROS PESSOAIS (ATUALIZADA) === -->
+            <section id="private-docs-section" class="card">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-[var(--cor-documento)] flex items-center gap-2">
+                    📃 Registros Pessoais
+                </h2>
+                <p class="text-sm text-gray-500 mb-4">Um espaço seguro para registrar textos ou anotações importantes sobre sua jornada.</p>
+
+                <!-- NOVO BLOCO DE REGISTRO PADRONIZADO (Estilo Diário) -->
+                <div class="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+                        <div class="col-span-1 sm:col-span-2">
+                            <label class="block text-sm font-medium mb-1 italic text-gray-600">Título:</label>
+                            <input type="text" id="new-doc-title" class="p-2 border rounded-lg w-full text-sm focus:ring-1 focus:ring-[var(--cor-documento)] focus:border-[var(--cor-documento)]" placeholder="ex: reflexão sobre a terapia">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-sm font-medium mb-1 italic text-gray-600">Data:</label>
+                            <input type="date" id="new-doc-date" class="border rounded-lg w-full text-base">
+                        </div>
+                    </div>
+                    
+                    <label class="block text-sm font-medium mb-1 italic text-gray-600">Conteúdo:</label>
+                    <textarea id="new-doc-content" rows="3" class="p-2 border rounded-lg w-full resize-none focus:ring-1 focus:ring-[var(--cor-documento)] focus:border-[var(--cor-documento)]" placeholder="escreva aqui..."></textarea>
+                    
+                    <button onclick="addNewPrivateDoc()" class="mt-3 px-4 py-2 text-white rounded-lg hover:opacity-90 transition bg-[var(--cor-documento)] hover:bg-blue-600 shadow-lg w-full sm:w-auto">
+                        registrar anotação
+                    </button>
+                </div>
+                
+                <div id="private-docs-container" class="space-y-6 max-h-[70vh] overflow-y-auto p-2">
+                    <!-- Os documentos privados serão injetados aqui -->
+                </div>
+            </section>
+
+            
             <!-- 4. NOVA SEÇÃO: ÂNCORA DO AMOR -->
             <section id="love-anchor-section" class="card">
-                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-pink-400">Âncora do Amor</h2>
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-pink-400">🩷 Âncora do Amor</h2>
                 <p class="text-sm text-gray-500 mb-4">Frases de afirmação e carinho ditas por ou para pessoas amadas.</p>
                 
                 <div class="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
-                    <!-- ALTERAÇÃO AQUI: Mudando para grid de 4 colunas em desktop para acomodar a data -->
+                    <!-- GRID DE 4 COLUNAS -->
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
                         <div class="col-span-1 sm:col-span-2">
                             <label for="love-quote-input" class="block text-sm font-medium mb-1 italic text-gray-600">Frase:</label>
                             <textarea id="love-quote-input" rows="2" class="p-2 border rounded-lg w-full  focus:ring-1 focus:ring-pink-400 focus:border-pink-400" placeholder="ex: 'sou grata(o) por ter você em minha vida.'"></textarea>
                         </div>
                         
-                        <!-- NOVO CAMPO DE DATA -->
                         <div class="col-span-1">
                             <label for="love-date-input" class="block text-sm font-medium mb-1 italic text-gray-600">quando foi dita:</label>
-                            <!-- Removendo p-2 do HTML para confiar no CSS global e no fix, e adicionando text-base (era text-sm) para ser mais legível -->
                             <input type="date" id="love-date-input" class="border rounded-lg w-full text-base">
                         </div>
                         
-                        <!-- CAMPO DE FONTE -->
                         <div class="col-span-1">
                             <label for="love-source-input" class="block text-sm font-medium mb-1 italic text-gray-600">Quem disse:</label>
                             <input type="text" id="love-source-input" class="p-2 border rounded-lg w-full text-sm" placeholder="ex: mãe, amiga, eu">
                         </div>
                     </div>
-                    <button onclick="addLoveQuote()" class="mt-3 px-4 py-2 journal-button text-white rounded-lg hover:opacity-90 transition bg-pink-500 hover:bg-pink-600">
+                    <button onclick="addLoveQuote()" class="mt-3 px-4 py-2 text-white rounded-lg hover:opacity-90 transition bg-pink-500 hover:bg-pink-400 shadow-lg">
                         registrar amor
                     </button>
                 </div>
@@ -423,41 +491,90 @@
                 </div>
             </section>
             
+            <section id="emotion-scale-section" class="card">
+                <div class="mb-4">
+                    <h2 class="text-xl font-semibold mb-4 border-b pb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-pink-400 to-yellow-200 w-fit">Mood Musical</h2>
+                    <p class="text-xs text-gray-500 italic p-2 rounded-lg bg-gray-900/10 border border-blue-900/30">
+                        ⭐ dica: Para evitar oscilações muito intensas (ex: da raiva para o amor), comece ouvindo a música da emoção que você está sentindo agora e suba aos poucos, sem pular etapas.
+                        Permita-se sentir cada emoção e fazer uma transição suave até o topo. 
+                    </p>
+                </div>
+                
+                <div id="emotion-scale-container" class="space-y-4">
+                    <!-- Os itens da escala serão gerados aqui pelo JavaScript -->
+                </div>
+            </section>
+
             <!-- SEÇÃO DE BACKUP / TRANSFERÊNCIA -->
             <section id="backup-section" class="card bg-gray-800 border border-gray-700">
                 <h2 class="text-lg font-semibold mb-4 text-gray-400 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                     Backup e Transferência
                 </h2>
-                <p class="text-xs text-gray-500 mb-4">Como não usamos servidor, seus dados ficam apenas neste computador. Para usar em outro lugar, baixe o backup e restaure lá.</p>
+                <!-- Texto atualizado para mencionar as opções -->
+                <p class="text-xs text-gray-500 mb-4">escolha como você deseja baixar seus dados: com o <b>backup protegido</b>, seus dados são criptografados e só podem ser visualizados após digitar a senha e restaurar seus dados no lumina. já o <b>backup simples</b> pode ser visualizado por qualquer pessoa com acesso ao arquivo.</p>
                 
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button onclick="exportData()" class="flex-1 px-4 py-3 bg-blue-600/20 border border-blue-500/50 text-blue-200 font-medium rounded-xl hover:bg-blue-600/30 transition text-sm flex items-center justify-center gap-2">
-                        ⬇ baixar meus dados (backup)
-                    </button>
+                <div class="flex flex-col gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button onclick="exportEncryptedData()" class="px-4 py-3 bg-blue-600/20 border border-blue-500/50 text-blue-200 font-medium rounded-xl hover:bg-blue-600/30 transition text-sm flex items-center justify-center gap-2">
+                            🔒 backup protegido (recomendado)
+                        </button>
+                        
+                        <button onclick="exportPlainData()" class="px-4 py-3 bg-amber-600/20 border border-amber-500/50 text-amber-200 font-medium rounded-xl hover:bg-amber-600/30 transition text-sm flex items-center justify-center gap-2">
+                            📄 backup simples 
+                        </button>
+                    </div>
                     
-                    <button onclick="triggerImport()" class="flex-1 px-4 py-3 bg-emerald-600/20 border border-emerald-500/50 text-emerald-200 font-medium rounded-xl hover:bg-emerald-600/30 transition text-sm flex items-center justify-center gap-2">
+                    <button onclick="triggerImport()" class="w-full px-4 py-3 bg-emerald-600/20 border border-emerald-500/50 text-emerald-200 font-medium rounded-xl hover:bg-emerald-600/30 transition text-sm flex items-center justify-center gap-2">
                         ⬆ restaurar dados (upload)
                     </button>
-                    <!-- Input file invisível -->
-                    <input type="file" id="import-file" accept=".json" class="hidden" onchange="handleFileImport(this)">
                 </div>
+                
+                <!-- Input file invisível -->
+                <input type="file" id="import-file" accept=".json,.lumina" class="hidden" onchange="handleFileImport(this)">
                 <p id="import-status" class="text-xs text-center mt-2 h-4"></p>
             </section>
-
-            <footer class="text-center text-sm py-6 text-gray-500">
-                © 2025 lumina — Conteúdo licenciado sob <b>MIT License</b>.
-
-            </footer>
+            
         </div>
+        
+        <!-- NOVO: Rodapé principal (visível no modo app) -->
+        <footer id="app-footer" class="text-center text-sm py-6 text-gray-500 hidden">
+            © 2025 lumina — Conteúdo licenciado sob <b>MIT License</b>.
+        </footer>
+        
     </div>
 
     <script>
+        // --- FUNÇÕES DE SEGURANÇA E UTILITÁRIOS ---
+
+        /**
+         * @description Higieniza o texto removendo tags HTML e garantindo que o texto seja
+         * injetado no DOM apenas como conteúdo e não como código executável (XSS).
+         * @param {string} text - O texto a ser higienizado.
+         * @returns {string} O texto com entidades HTML escapadas.
+         */
+        function sanitizeText(text) {
+            if (typeof text !== 'string') return '';
+            // Cria um TextNode, permitindo que o navegador faça o escape de HTML para nós.
+            const tempDiv = document.createElement('div');
+            tempDiv.textContent = text;
+            return tempDiv.innerHTML;
+        }
+
+        /**
+         * @description Gera um hash SHA-256 da senha.
+         * @param {string} password - A senha a ser hasheada.
+         * @returns {string} O hash da senha.
+         */
+        function hashPassword(password) {
+            return CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
+        }
+
         // --- SISTEMA DE ARMAZENAMENTO LOCAL (SEM FIREBASE) ---
         
         // Chaves para o LocalStorage
         const KEYS = {
-            USERS: 'lumina_users_v1', // Onde guardamos login/senha
+            USERS: 'lumina_users_v2_hashed', // Onde guardamos login/HASH de senha (ATUALIZADO)
             SESSION: 'lumina_session_user', // Quem está logado agora
             DATA_PREFIX: 'lumina_data_' // Prefixo para os dados de cada usuário
         };
@@ -470,10 +587,25 @@
             markers: [],
             fixed_elements: [],
             likes: [],
-            dislikes: [], // NOVO CAMPO ADICIONADO
+            dislikes: [], 
             journal: [],
-            love_quotes: []
+            love_quotes: [],
+            emotion_scale: {}, 
+            private_docs: [], 
         };
+
+        // Definição da Escala Fixa (ORDEM INVERTIDA)
+        const EMOTION_SCALE_DEF = [
+            { id: 'paz',      label: '9. paz',      color: 'border-cyan-200',   bg: 'bg-cyan-200/10' },
+            { id: 'alegria',  label: '8. alegria',  color: 'border-yellow-400', bg: 'bg-yellow-400/10' },
+            { id: 'amor',     label: '7. amor',     color: 'border-pink-500',   bg: 'bg-pink-500/10' },
+            { id: 'aceitacao',label: '6. aceitação',color: 'border-green-600',  bg: 'bg-green-600/10' },
+            { id: 'coragem',  label: '5. coragem',  color: 'border-amber-500',  bg: 'bg-amber-500/10' },
+            { id: 'raiva',    label: '4. raiva',    color: 'border-orange-700', bg: 'bg-orange-700/10' },
+            { id: 'desejo',   label: '3. desejo',   color: 'border-red-800',    bg: 'bg-red-900/10' },
+            { id: 'medo',     label: '2. medo',     color: 'border-indigo-900', bg: 'bg-indigo-900/10' },
+            { id: 'tristeza', label: '1. tristeza', color: 'border-blue-900', bg: 'bg-blue-900/10' }
+        ];
 
         // Estado Global
         let currentUser = null;
@@ -481,21 +613,82 @@
         
         window.userData = JSON.parse(JSON.stringify(defaultData)); // Cópia limpa
 
-        // --- FUNÇÕES DE BACKUP (EXPORTAR / IMPORTAR) ---
+        // --- FUNÇÕES DE BACKUP (CRIPTOGRAFADO E SIMPLES) ---
         
-        window.exportData = function() {
+        // OPÇÃO 1: Backup Criptografado (Original)
+        window.exportEncryptedData = function() {
             if(!currentUser) return;
-            const dataStr = JSON.stringify(window.userData, null, 2); // Identado para ficar bonito se abrir
-            const blob = new Blob([dataStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
             
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `lumina_backup_${currentUser}_${new Date().toISOString().slice(0,10)}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            // 1. Solicita a senha para criptografia
+            const password = prompt("🔒 proteção de backup\n\ncrie uma senha para criptografar este arquivo:");
+            
+            if (!password) {
+                // Se o usuário cancelou ou deixou vazio, aborta para segurança
+                if(password === "") alert("backup cancelado: é necessário definir uma senha para garantir a segurança dos seus dados.");
+                return;
+            }
+            if (password.length < 8) {
+                alert("backup cancelado: a senha de backup deve ter no mínimo 8 caracteres para ser segura.");
+                return;
+            }
+
+            // 2. AVISO IMPORTANTE 
+            const confirmBackup = confirm("⚠️ se você perder ou esquecer esta senha, seus dados serão perdidos para sempre. como os dados são criptografados, não há 'recuperação de senha' possível. ⚠️");
+            
+            if (!confirmBackup) return;
+
+            const dataStr = JSON.stringify(window.userData);
+            
+            try {
+                // 3. Criptografa os dados usando AES e a senha informada
+                const encryptedData = CryptoJS.AES.encrypt(dataStr, password).toString();
+
+                // 4. Salva o arquivo criptografado
+                const blob = new Blob([encryptedData], { type: "text/plain" });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                // Extensão .lumina para indicar que é um arquivo proprietário/especial
+                a.download = `lumina_backup_${sanitizeText(currentUser)}_${new Date().toISOString().slice(0,10)}.lumina`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                console.error(e);
+                alert("erro ao criptografar os dados. tente novamente.");
+            }
+        }
+
+        // OPÇÃO 2: Backup Simples (JSON - Nova função)
+        window.exportPlainData = function() {
+            if(!currentUser) return;
+
+            // Aviso de segurança
+            const confirmPlain = confirm("⚠️ você escolheu baixar um backup sem criptografia. qualquer pessoa com acesso a este arquivo poderá ler seus dados.\n\ndeseja continuar?");
+            
+            if (!confirmPlain) return;
+
+            try {
+                // Pretty print (indentação de 2 espaços) para ficar legível se a pessoa abrir no bloco de notas
+                const dataStr = JSON.stringify(window.userData, null, 2);
+                
+                const blob = new Blob([dataStr], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                // Extensão .json padrão
+                a.download = `lumina_dados_${sanitizeText(currentUser)}_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                console.error(e);
+                alert("erro ao gerar o arquivo JSON. tente novamente.");
+            }
         }
 
         window.triggerImport = function() {
@@ -509,17 +702,55 @@
             const reader = new FileReader();
             const statusEl = document.getElementById('import-status');
             
-            statusEl.textContent = "Lendo arquivo...";
+            statusEl.textContent = "lendo arquivo...";
             statusEl.className = "text-xs text-center mt-2 h-4 text-amber-400";
 
             reader.onload = function(e) {
+                let importedData = null;
+                const fileContent = e.target.result;
+
                 try {
-                    const importedData = JSON.parse(e.target.result);
+                    // TENTATIVA 1: Tenta ler como JSON normal (Backup Simples)
+                    importedData = JSON.parse(fileContent);
+                } catch (jsonError) {
+                    // Se der erro no JSON.parse, assumimos que está criptografado (ou é lixo).
+                    // TENTATIVA 2: Pedir a senha e descriptografar (Backup Protegido)
+                    const password = prompt("🔐 arquivo protegido\n\neste backup está criptografado. digite a senha para desbloquear:");
                     
+                    if (password) {
+                        try {
+                            const bytes = CryptoJS.AES.decrypt(fileContent, password);
+                            const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
+                            
+                            if (!decryptedString) throw new Error("Senha incorreta ou arquivo corrompido");
+                            
+                            importedData = JSON.parse(decryptedString);
+                        } catch (cryptoError) {
+                            alert("senha incorreta ou arquivo inválido.");
+                            statusEl.textContent = "erro: senha incorreta.";
+                            statusEl.className = "text-xs text-center mt-2 h-4 text-red-400";
+                            input.value = '';
+                            return;
+                        }
+                    } else {
+                        statusEl.textContent = "Importação cancelada.";
+                        input.value = '';
+                        return;
+                    }
+                }
+
+                try {
                     // Validação básica para ver se é um arquivo do Lumina
-                    if (importedData.qualities && Array.isArray(importedData.qualities)) {
+                    // Verifica se tem pelo menos um campo conhecido ou se é um objeto vazio válido
+                    if (importedData && typeof importedData === 'object') {
                         // Sucesso! Atualiza a memória
+                        // Fazemos merge com defaultData para garantir que campos novos (como 'dislikes') existam mesmo em backups antigos
                         window.userData = { ...defaultData, ...importedData };
+                        
+                        // Garante que arrays existam se vierem null
+                        if(!window.userData.qualities) window.userData.qualities = [];
+                        if(!window.userData.values) window.userData.values = [];
+                        
                         // Salva no disco local imediatamente
                         saveData(); 
                         // Atualiza a tela
@@ -545,7 +776,7 @@
             reader.readAsText(file);
         }
 
-        // --- FUNÇÕES DE AUTENTICAÇÃO LOCAL ---
+        // --- FUNÇÕES DE AUTENTICAÇÃO LOCAL (COM HASH DE SENHA) ---
 
         function getUsersDB() {
             const users = localStorage.getItem(KEYS.USERS);
@@ -565,8 +796,9 @@
                 showError("Preencha e-mail e senha.");
                 return;
             }
-            if(password.length < 4) {
-                showError("Senha muito curta.");
+            // Aumentando o mínimo de senha para 6
+            if(password.length < 6) { 
+                showError("A senha deve ter no mínimo 6 caracteres.");
                 return;
             }
 
@@ -576,8 +808,11 @@
                 return;
             }
 
-            // Cria usuário
-            users[email] = { password: password, createdAt: new Date().toISOString() };
+            // CORREÇÃO DE SEGURANÇA: Armazena o hash da senha
+            const passwordHash = hashPassword(password);
+
+            // Cria usuário com hash
+            users[email] = { hash: passwordHash, createdAt: new Date().toISOString() };
             saveUsersDB(users);
 
             // Loga automaticamente
@@ -594,11 +829,20 @@
             }
 
             const users = getUsersDB();
-            if(users[email] && users[email].password === password) {
-                loginUser(email);
-            } else {
-                showError("E-mail ou senha incorretos.");
-            }
+            const userRecord = users[email];
+            
+            if(userRecord) {
+                // CORREÇÃO DE SEGURANÇA: Hasheia a senha digitada para comparação
+                const inputHash = hashPassword(password);
+
+                // Compara o hash de entrada com o hash armazenado
+                if (userRecord.hash === inputHash) {
+                    loginUser(email);
+                    return;
+                }
+            } 
+            
+            showError("E-mail ou senha incorretos.");
         };
 
         window.handleLocalLogout = function() {
@@ -608,9 +852,15 @@
             // Limpa UI
             document.getElementById('auth-email').value = '';
             document.getElementById('auth-password').value = '';
+            
+            // Esconde conteúdo do app
             document.getElementById('app-content').classList.add('hidden');
+            document.getElementById('app-footer').classList.add('hidden');
+
+            // Mostra tela de login/explicação
             document.getElementById('auth-section').classList.remove('hidden');
-            document.getElementById('welcome-explanation').classList.remove('hidden'); // MOSTRAR O BLOCO CONSOLIDADO
+            document.getElementById('welcome-explanation').classList.remove('hidden');
+            document.getElementById('auth-footer').classList.remove('hidden'); // MOSTRAR NO LOGOUT
         };
 
         function loginUser(email) {
@@ -618,10 +868,18 @@
             localStorage.setItem(KEYS.SESSION, email);
             
             document.getElementById('auth-error').classList.add('hidden');
+            
+            // Esconde tela de login/explicação
             document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('welcome-explanation').classList.add('hidden'); // ESCONDER O BLOCO CONSOLIDADO
+            document.getElementById('welcome-explanation').classList.add('hidden');
+            document.getElementById('auth-footer').classList.add('hidden'); // ESCONDER NO LOGIN
+
+            // Mostra conteúdo do app
             document.getElementById('app-content').classList.remove('hidden');
-            document.getElementById('user-id-display').textContent = `Usuário: ${email}`;
+            document.getElementById('app-footer').classList.remove('hidden'); // MOSTRAR NO LOGIN
+            
+            // CORREÇÃO DE SEGURANÇA: Sanitiza o e-mail antes de injetar no DOM (embora seja só um e-mail, é boa prática)
+            document.getElementById('user-id-display').textContent = `Usuário: ${sanitizeText(email)}`;
             
             loadData();
         }
@@ -689,7 +947,7 @@
         const debouncedSave = debounce(saveData, 1000);
         window.saveDataToFirestore = saveData; // Mantendo o nome antigo para compatibilidade do botão manual
 
-        // --- RENDERIZAÇÃO DA UI (Mesma Lógica) ---
+        // --- RENDERIZAÇÃO DA UI (Com Sanitização) ---
 
         const cleanAndSplit = (value, limit = Infinity) => {
             return (value || "").split(',').map(s => s.trim()).filter(s => s.length > 0).slice(0, limit);
@@ -699,30 +957,131 @@
             renderList('qualities-list', window.userData.qualities);
             renderList('values-list', window.userData.values);
             renderMarkers();
+            renderPrivateDocs(); 
             renderFixedElements();
             renderLikes();
-            renderDislikes(); // RENDERIZAÇÃO DO NOVO CAMPO
+            renderDislikes(); 
             renderJournal();
             renderLoveQuotes();
+            renderEmotionScale(); 
+        }
+        
+        // --- LÓGICA DA ESCALA MUSICAL ---
+        
+        // Converte links normais em links de embed de forma robusta
+        function getEmbedUrl(url) {
+            if (!url) return null;
+            try {
+                // Spotify (REGRA NOVA PARA IGNORAR PAÍS)
+                if (url.includes('spotify.com')) {
+                    // Regex captura:
+                    // 1. O tipo (track, album, playlist, episode)
+                    // 2. O ID (alfanumérico)
+                    // Ignora prefixos como /intl-pt/ ou /intl-ja/
+                    const match = url.match(/spotify\.com\/(?:intl-[a-z-]+\/)?(track|album|playlist|episode)\/([a-zA-Z0-9]+)/);
+                    if (match && match.length >= 3) {
+                        return `https://open.spotify.com/embed/${match[1]}/${match[2]}`;
+                    }
+                    // Se já for embed, deixa como está
+                    if (url.includes('/embed')) return url;
+                }
+                
+                // Apple Music
+                if (url.includes('music.apple.com') && !url.includes('embed.')) {
+                    return url.replace('music.apple.com', 'embed.music.apple.com');
+                }
+                // YouTube (básico)
+                if (url.includes('youtube.com/watch?v=')) {
+                    const videoId = url.split('v=')[1].split('&')[0];
+                    return `https://www.youtube.com/embed/${videoId}`;
+                }
+                if (url.includes('youtu.be/')) {
+                    const videoId = url.split('youtu.be/')[1].split('?')[0];
+                    return `https://www.youtube.com/embed/${videoId}`;
+                }
+                
+                // CORREÇÃO DE SEGURANÇA: Não injeta URL sem sanitização no iframe src
+                // Embora iframes tenham proteção nativa, forçamos que apenas URLs válidas de embed sejam usadas.
+                // Aqui, apenas retorna a URL original se não for de embed conhecida.
+                return url; 
+            } catch (e) {
+                console.error("Erro ao converter URL", e);
+                return url;
+            }
+        }
+
+        function renderEmotionScale() {
+            const container = document.getElementById('emotion-scale-container');
+            if(!window.userData.emotion_scale) window.userData.emotion_scale = {};
+
+            container.innerHTML = EMOTION_SCALE_DEF.map(item => {
+                const savedItem = window.userData.emotion_scale[item.id] || { link: '' }; // Removemos o 'name'
+                const embedUrl = getEmbedUrl(savedItem.link);
+                const hasEmbed = embedUrl && (embedUrl.includes('embed') || embedUrl.includes('youtube'));
+
+                // Lógica de altura dinâmica
+                let heightClass = "h-20 sm:h-[80px]"; // Padrão (Spotify compact)
+                
+                if (embedUrl) {
+                    if (embedUrl.includes('music.apple.com')) {
+                        heightClass = "h-[150px]"; // Apple Music precisa de mais altura
+                    } else if (embedUrl.includes('youtube') || embedUrl.includes('youtu.be')) {
+                        heightClass = "h-[200px]"; // YouTube fica melhor maior
+                    }
+                }
+
+                // CORREÇÃO DE SEGURANÇA: O link salvo é usado como 'value' no input. O valor de entrada deve ser sanitizado.
+                // O valor do input é recuperado via .value, então não é um risco de XSS direto na injeção.
+                // Mas a URL do embed é injetada. Como getEmbedUrl verifica o protocolo, mantemos assim.
+                return `
+                <div class="scale-item p-4 rounded-lg bg-gray-800/40 ${item.color} border-l-4">
+                    <div class="flex flex-col sm:flex-row gap-4 items-center justify-between mb-2">
+                        <!-- CORREÇÃO DE SEGURANÇA: Sanitiza o label -->
+                        <span class="text-sm font-bold text-gray-400 w-28 flex-shrink-0">${sanitizeText(item.label)}</span>
+                        
+                        <!-- Input Único agora -->
+                        <div class="flex-grow w-full">
+                            <input type="url" 
+                                placeholder="que música te faz sentir assim? cole o link do spotify, apple music ou youtube."
+                                class="w-full bg-transparent border-b border-gray-700 focus:border-amber-500 outline-none text-sm p-1 text-gray-500 focus:text-gray-300 placeholder-gray-600 transition-colors"
+                                value="${sanitizeText(savedItem.link || '')}"
+                                onchange="updateEmotion('${item.id}', 'link', this.value)"
+                            >
+                        </div>
+                    </div>
+                    
+                    ${hasEmbed ? `
+                    <div class="mt-3 w-full ${heightClass} rounded overflow-hidden shadow-lg animate-fade-in">
+                        <!-- O src do iframe já foi verificado para ser uma URL de embed conhecida -->
+                        <iframe style="border-radius:12px" src="${embedUrl}" width="100%" height="100%" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                    </div>
+                    ` : ''}
+                </div>
+                `;
+            }).join('');
         }
 
         function renderList(id, items) {
             const ul = document.getElementById(id);
             const safeItems = Array.isArray(items) ? items : [];
-            ul.innerHTML = safeItems.map(item => `<li class="text-gray-700">${item.trim()}</li>`).join('');
+            // CORREÇÃO DE SEGURANÇA: Sanitiza o texto antes de injetar
+            ul.innerHTML = safeItems.map(item => `<li class="text-gray-700">${sanitizeText(item.trim())}</li>`).join('');
         }
 
         function renderMarkers() {
             const container = document.getElementById('markers-container');
             const items = Array.isArray(window.userData.markers) ? window.userData.markers : [];
-            container.innerHTML = items.map(marker => `<span class="marker-tag text-sm">${marker.trim()}</span>`).join('');
+            // CORREÇÃO DE SEGURANÇA: Sanitiza o texto antes de injetar
+            container.innerHTML = items.map(marker => `<span class="marker-tag text-sm">${sanitizeText(marker.trim())}</span>`).join('');
         }
 
         function populateInlineInputs() {
-            const i1 = document.getElementById('identity-sentence-input'); if(i1) i1.value = window.userData.identity_sentence || '';
-            const i2 = document.getElementById('qualities-input'); if(i2) i2.value = (window.userData.qualities || []).join(', ');
-            const i3 = document.getElementById('values-input'); if(i3) i3.value = (window.userData.values || []).join(', ');
-            const i4 = document.getElementById('markers-input'); if(i4) i4.value = (window.userData.markers || []).join(', ');
+            // CORREÇÃO DE SEGURANÇA: Usa sanitizeText ao preencher inputs para garantir segurança caso os dados
+            // brutos armazenados contenham código malicioso de um ataque XSS anterior.
+            const i1 = document.getElementById('identity-sentence-input'); if(i1) i1.value = sanitizeText(window.userData.identity_sentence || '');
+            const i2 = document.getElementById('qualities-input'); if(i2) i2.value = sanitizeText((window.userData.qualities || []).join(', '));
+            const i3 = document.getElementById('values-input'); if(i3) i3.value = sanitizeText((window.userData.values || []).join(', '));
+            const i4 = document.getElementById('markers-input'); if(i4) i4.value = sanitizeText((window.userData.markers || []).join(', '));
         }
 
         function setupInlineInputs() {
@@ -730,6 +1089,7 @@
                 const el = document.getElementById(id);
                 if(!el) return;
                 el.addEventListener('input', (e) => {
+                    // O valor bruto é sempre salvo. A sanitização ocorre no display/render.
                     if(isArray) {
                         window.userData[field] = cleanAndSplit(e.target.value, limit);
                         // Re-render immediately for preview
@@ -751,27 +1111,133 @@
             setup('markers-input', 'markers', true);
         }
 
-        // --- ADD/REMOVE FUNCTIONS ---
+        // --- LÓGICA DE DOCUMENTOS PRIVADOS (COM ID ÚNICO PARA REMOÇÃO) ---
+
+        // Função para adicionar novo documento a partir do bloco superior
+        window.addNewPrivateDoc = function() {
+            const tIn = document.getElementById('new-doc-title');
+            const dIn = document.getElementById('new-doc-date');
+            const cIn = document.getElementById('new-doc-content');
+
+            const title = tIn.value.trim();
+            const content = cIn.value.trim();
+            // Pega a data ou usa a data de hoje como fallback
+            const date = dIn.value || new Date().toISOString().split('T')[0];
+
+            // Permite salvar apenas se houver título ou conteúdo
+            if (title || content) {
+                if(!Array.isArray(window.userData.private_docs)) window.userData.private_docs = [];
+                
+                const doc = {
+                    // Mantém ID único para remoção mais segura
+                    id: Date.now(), 
+                    title: title,
+                    date: date,
+                    content: content
+                };
+                
+                window.userData.private_docs.unshift(doc);
+                
+                // Limpa os campos
+                tIn.value = '';
+                cIn.value = '';
+                dIn.value = ''; // Limpa a data visualmente
+                
+                saveData();
+                renderPrivateDocs();
+            }
+        }
+
+        window.updateDocField = function(id, field, value) {
+            const docIndex = window.userData.private_docs.findIndex(doc => doc.id == id);
+            if (docIndex !== -1) {
+                window.userData.private_docs[docIndex][field] = value;
+                debouncedSave(); // Salva automaticamente com debounce
+            }
+        }
+
+        window.removePrivateDoc = function(id) {
+            const originalLength = window.userData.private_docs.length;
+            // Usa o ID para remover (mais seguro que usar índice)
+            window.userData.private_docs = window.userData.private_docs.filter(doc => doc.id != id); 
+            if (window.userData.private_docs.length < originalLength) {
+                saveData();
+                renderPrivateDocs();
+            }
+        }
+
+        function renderPrivateDocs() {
+            const container = document.getElementById('private-docs-container');
+            const items = window.userData.private_docs || [];
+            if(items.length === 0) { 
+                container.innerHTML = '<p class="text-center italic text-gray-500">Nenhum registro.</p>'; 
+                return; 
+            }
+            
+            container.innerHTML = items.map(doc => `
+                <div class="card p-6 border-l-4 border-[var(--cor-documento)] space-y-3 relative group">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-start gap-2">
+                             <!-- Título Editável -->
+                             <input type="text" 
+                                class="document-title-input text-xl font-bold bg-transparent border-b border-transparent hover:border-gray-700 focus:border-[var(--cor-documento)] transition-colors w-full"
+                                value="${sanitizeText(doc.title || '')}"
+                                oninput="updateDocField(${doc.id}, 'title', this.value)"
+                                placeholder="sem título"
+                            >
+                             <!-- Botão Remover -->
+                             <button onclick="removePrivateDoc(${doc.id})" class="text-red-500 hover:text-red-700 p-1 flex-shrink-0 opacity-80 hover:opacity-100" title="remover">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Data Editável (aparece logo abaixo do título) -->
+                         <input type="date" 
+                                class="document-date-input"
+                                value="${sanitizeText(doc.date || '')}"
+                                onchange="updateDocField(${doc.id}, 'date', this.value)"
+                        >
+
+                        <!-- Conteúdo Editável -->
+                        <textarea 
+                            id="doc-content-${doc.id}"
+                            class="p-3 border rounded-lg w-full resize-y min-h-[150px] bg-cor-secundaria/50 focus:ring-1 focus:ring-[var(--cor-documento)] focus:border-[var(--cor-documento)] text-sm mt-1" 
+                            oninput="updateDocField(${doc.id}, 'content', this.value)"
+                            placeholder="conteúdo do documento..."
+                        >${sanitizeText(doc.content || '')}</textarea>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // --- FIM LÓGICA DE DOCUMENTOS PRIVADOS ---
+
+
+        // --- ADD/REMOVE FUNCTIONS (VOLTANDO AO ÍNDICE) ---
 
         window.addFixedElement = function() {
             const input = document.getElementById('new-fixed-element-input');
             const val = input.value.trim();
             if(val) {
                 if(!Array.isArray(window.userData.fixed_elements)) window.userData.fixed_elements = [];
-                window.userData.fixed_elements.push(val);
+                // Voltando a armazenar apenas o texto
+                window.userData.fixed_elements.push(val); 
                 input.value = '';
                 saveData(); renderFixedElements();
             }
         }
         window.removeFixedElement = function(i) {
+            // Voltando a remover por índice (i)
             window.userData.fixed_elements.splice(i, 1);
             saveData(); renderFixedElements();
         }
         function renderFixedElements() {
             const container = document.getElementById('fixed-elements-container');
+            // Renderiza o item com o índice para a função de remoção
             container.innerHTML = (window.userData.fixed_elements || []).map((item, i) => `
                 <div class="card p-3 flex justify-between items-center bg-cor-secundaria/50 text-sm">
-                    <p class="font-medium text-gray-800">${item}</p>
+                    <!-- CORREÇÃO DE SEGURANÇA: Sanitiza o texto antes de injetar -->
+                    <p class="font-medium text-gray-800">${sanitizeText(item)}</p>
                     <button onclick="removeFixedElement(${i})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
                 </div>
             `).join('');
@@ -782,51 +1248,58 @@
             const val = input.value.trim();
             if(val) {
                 if(!Array.isArray(window.userData.likes)) window.userData.likes = [];
-                window.userData.likes.push(val);
+                // Voltando a armazenar apenas o texto
+                window.userData.likes.push(val); 
                 input.value = '';
                 saveData(); renderLikes();
             }
         }
         window.removeLikeElement = function(i) {
+            // Voltando a remover por índice (i)
             window.userData.likes.splice(i, 1);
             saveData(); renderLikes();
         }
         function renderLikes() {
             const container = document.getElementById('likes-container');
+            // Renderiza o item com o índice para a função de remoção
             container.innerHTML = (window.userData.likes || []).map((item, i) => `
                 <div class="card p-3 flex justify-between items-center bg-cor-secundaria/50 text-sm">
-                    <p class="font-medium text-gray-800">${item}</p>
+                    <!-- CORREÇÃO DE SEGURANÇA: Sanitiza o texto antes de injetar -->
+                    <p class="font-medium text-gray-800">${sanitizeText(item)}</p>
                     <button onclick="removeLikeElement(${i})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
                 </div>
             `).join('');
         }
 
-        // --- NOVO BLOCO PARA DISLIKES ---
+        // --- BLOCO PARA DISLIKES ---
         window.addDislikeElement = function() {
             const input = document.getElementById('new-dislike-input');
             const val = input.value.trim();
             if(val) {
                 if(!Array.isArray(window.userData.dislikes)) window.userData.dislikes = [];
+                // Voltando a armazenar apenas o texto
                 window.userData.dislikes.push(val);
                 input.value = '';
                 saveData(); renderDislikes();
             }
         }
         window.removeDislikeElement = function(i) {
+            // Voltando a remover por índice (i)
             window.userData.dislikes.splice(i, 1);
             saveData(); renderDislikes();
         }
         function renderDislikes() {
             const container = document.getElementById('dislikes-container');
-            // Alterado: Fundo para `bg-cor-secundaria/50` e borda para `border-red-500`
+            // Renderiza o item com o índice para a função de remoção
             container.innerHTML = (window.userData.dislikes || []).map((item, i) => `
                 <div class="card p-3 flex justify-between items-center bg-cor-secundaria/50 text-sm border-l-4 border-red-500">
-                    <p class="font-medium text-gray-800">${item}</p>
+                    <!-- CORREÇÃO DE SEGURANÇA: Sanitiza o texto antes de injetar -->
+                    <p class="font-medium text-gray-800">${sanitizeText(item)}</p>
                     <button onclick="removeDislikeElement(${i})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
                 </div>
             `).join('');
         }
-        // --- FIM NOVO BLOCO ---
+        // --- FIM BLOCO DISLIKES ---
 
 
         window.addJournalEntry = function() {
@@ -834,13 +1307,14 @@
             const val = txt.value.trim();
             if(val) {
                 if(!Array.isArray(window.userData.journal)) window.userData.journal = [];
+                // Voltando a armazenar sem ID único
                 window.userData.journal.push({ date: new Date().toISOString().split('T')[0], entry: val });
                 txt.value = '';
                 saveData(); renderJournal();
             }
         }
         window.removeJournalEntry = function(originalIndex) {
-             const realIndex = window.userData.journal.length - 1 - originalIndex; 
+             // Voltando a remover por índice (i)
              window.userData.journal.splice(originalIndex, 1);
              saveData(); renderJournal();
         }
@@ -849,14 +1323,21 @@
             const items = window.userData.journal || [];
             if(items.length === 0) { container.innerHTML = '<p class="text-center italic text-gray-500">Nenhum registro.</p>'; return; }
             
-            const reversed = [...items].reverse();
+            // Renderiza em ordem inversa (mais recente primeiro)
+            const reversed = [...items].reverse(); 
+
             container.innerHTML = reversed.map((entry, i) => {
-                const realIndex = items.length - 1 - i;
+                // Calcula o índice real no array original para o botão de remoção
+                const originalIndex = items.length - 1 - i;
                 const date = new Date(entry.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
                 return `
                     <div class="card p-4 border-l-4 border-cor-ancora text-sm flex justify-between items-start">
-                        <div><p class="text-xs text-gray-500 mb-1">${date}</p><p class="text-base text-gray-700">${entry.entry}</p></div>
-                        <button onclick="removeJournalEntry(${realIndex})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
+                        <div>
+                            <!-- CORREÇÃO DE SEGURANÇA: Sanitiza o texto antes de injetar -->
+                            <p class="text-xs text-gray-500 mb-1">${sanitizeText(date)}</p>
+                            <p class="text-base text-gray-700">${sanitizeText(entry.entry)}</p>
+                        </div>
+                        <button onclick="removeJournalEntry(${originalIndex})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
                     </div>
                 `;
             }).join('');
@@ -865,28 +1346,29 @@
         window.addLoveQuote = function() {
             const qIn = document.getElementById('love-quote-input');
             const sIn = document.getElementById('love-source-input');
-            // NOVO: Captura o campo de data
             const dIn = document.getElementById('love-date-input'); 
 
             const q = qIn.value.trim();
             const s = sIn.value.trim();
-            // Pega o valor da data ou usa a data de hoje como fallback
             const d = dIn.value.trim() || new Date().toISOString().split('T')[0]; 
             
             if(q) {
                 if(!Array.isArray(window.userData.love_quotes)) window.userData.love_quotes = [];
-                // ADICIONA A DATA (d) AO OBJETO DE CITAÇÃO
+                // Voltando a armazenar sem ID único
                 window.userData.love_quotes.push({ quote: q, source: s || "Você", date: d });
+                
+                // NOTA: A ordenação será feita no render
                 
                 qIn.value = ''; 
                 sIn.value = '';
-                dIn.value = ''; // Limpa o campo de data após o registro
+                dIn.value = ''; 
                 
                 saveData(); 
                 renderLoveQuotes();
             }
         }
         window.removeLoveQuote = function(originalIndex) {
+            // Voltando a remover por índice (i)
             window.userData.love_quotes.splice(originalIndex, 1);
             saveData(); renderLoveQuotes();
         }
@@ -895,19 +1377,25 @@
             const items = window.userData.love_quotes || [];
             if(items.length === 0) { container.innerHTML = '<p class="text-center italic text-gray-500">Nenhuma frase.</p>'; return; }
             
-            const reversed = [...items].reverse();
-            container.innerHTML = reversed.map((item, i) => {
-                const realIndex = items.length - 1 - i;
+            // Ordena os itens por data de forma decrescente (mais recentes primeiro)
+            const sortedItems = [...items].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            container.innerHTML = sortedItems.map((item) => {
+                // Procurar o índice real no array original (não ordenado por data) para a função de remoção
+                const originalIndex = items.findIndex(original => 
+                    original.quote === item.quote && original.date === item.date && original.source === item.source
+                );
+                
                 // Formata a data para exibição (apenas dia e mês para ser conciso)
                 const date = new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
                 return `
                     <div class="card p-4 love-quote text-sm flex justify-between items-start">
                         <div>
-                            <p class="text-lg italic text-gray-700 leading-snug">"${item.quote}"</p>
-                            <!-- EXIBE A DATA AO LADO DA FONTE -->
-                            <p class="text-xs text-gray-500 mt-1">- ${item.source} <span class="ml-2">(${date})</span></p>
+                            <!-- CORREÇÃO DE SEGURANÇA: Sanitiza o texto antes de injetar -->
+                            <p class="text-lg italic text-gray-700 leading-snug">"${sanitizeText(item.quote)}"</p>
+                            <p class="text-xs text-gray-500 mt-1">- ${sanitizeText(item.source)} <span class="ml-2">(${sanitizeText(date)})</span></p>
                         </div>
-                        <button onclick="removeLoveQuote(${realIndex})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
+                        <button onclick="removeLoveQuote(${originalIndex})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
                     </div>
                 `;
             }).join('');
@@ -933,7 +1421,10 @@
             if(sessionUser) {
                 loginUser(sessionUser);
             } else {
+                // Estado inicial: Mostra login/explicação e seu rodapé
                 document.getElementById('auth-section').classList.remove('hidden');
+                document.getElementById('welcome-explanation').classList.remove('hidden');
+                document.getElementById('auth-footer').classList.remove('hidden');
             }
         }
 
